@@ -222,8 +222,5 @@ public class Deploy {
             from = to;
         }
     }
-    private static void test(){
-        //zst method
-    }
 }
 
