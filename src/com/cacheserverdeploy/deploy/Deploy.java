@@ -233,6 +233,11 @@ public class Deploy {
     }
 
     private static void f1(){
+        /* Merge Test
+        * */
+        int c = Integer.MAX_VALUE;
+        int a = Double.SIZE;
+        int b = c -a;
 
     }
     private static void f2(){
