@@ -236,6 +236,8 @@ public class Deploy {
 
     }
     private static void f2(){
+        //zst
+        int a = 0;
     }
 }
 
