@@ -18,6 +18,7 @@ public class Deploy {
         int eNum = Integer.parseInt(detail[1]);
         int cNum = Integer.parseInt(detail[2]);
         int cost = Integer.parseInt(graphContent[2].trim());
+
         Queue sNodeCap;
         TreeMap treeMap;
         TreeMap<Double,Integer> tmap;
@@ -25,9 +26,9 @@ public class Deploy {
         int[][] capacity = new int[vNum][vNum];
         int[][] fee = new int[vNum][vNum];
 
-        for (int i = 0; i < vNum; i++)
-            for (int j = 0; j < vNum; j++)
-                capacity[i][j] = 0; //Integer.MAX_VALUE;
+//        for (int i = 0; i < vNum; i++)
+//            for (int j = 0; j < vNum; j++)
+//                capacity[i][j] = Integer.MAX_VALUE;
 
 //        for(int i = 0;i < vNum ;i++)
 //            capacity[i][i] = 0;
@@ -43,31 +44,19 @@ public class Deploy {
             fee[end][start] = fee[start][end];
         }
 
-//        sNodeCap = sumNodeCap(capacity);
-//        treeMap = sumNodeCap_TreeMap(capacity);
-        tmap = sumNodeCap_TreeMap(capacity);
-        printPairTreeMap(tmap);
-
-        int[][] flowGraph = minFeeFlow(1, 13, 13, capacity, fee);
-        printMatri(flowGraph);
-//        printMatri(capacity);
-//        System.out.println(capacity[24][22]+" " +capacity[22][23]+" "+capacity[23][22]);
+        zstTest(capacity,fee);
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
     }
+    
+    public static void zstTest(int[][] capacity, int[][] fee){
 
-    /**
-     * 按照输入文件的格式在控制台上打印图
-     *
-     * @param c 容量表
-     * @param f 费用表
-     */
-    private static void printG(int[][] c, int[][] f) {
-        for (int i = 0; i < c.length; i++)
-            for (int j = 0; j < c[0].length; j++)
-                if (c[i][j] < Integer.MAX_VALUE)
-                    System.out.println(i + " " + j + " " + c[i][j] + " " + f[i][j]);
+        int start = 0, end = 3, flow = 17;
+        FlowGraph flowGraph = minFeeFlow(start, end, flow, capacity, fee);
+        List<String> list = getAllFlowPath(start, end, flowGraph);
+        for (String s : list)
+            System.out.println(s);
     }
 
 
@@ -144,6 +133,8 @@ public class Deploy {
      */
     private static List<Integer> getPath(int end, int[] post) {
         LinkedList<Integer> list = new LinkedList<Integer>();
+        if(post == null)
+            return list;
         int p = end;
         list.add(p);
         while (post[p] != -1) {
@@ -151,11 +142,6 @@ public class Deploy {
             p = post[p];
         }
         return list;
-//        p = 0;
-//        int[] res = new int[list.size()];
-//        for(int i : list)
-//            res[p++] = i;
-//        return res;
     }
 
     /**
@@ -189,7 +175,7 @@ public class Deploy {
      * @param residualFee 残余网络费用
      * @param flowGraph   流量图
      */
-    private static void reSetGraph(List<Integer> path, int flow, int[][] cap, int[][] residualCap, int[][] residualFee, int[][] flowGraph) {
+    private static void reSetGraph(List<Integer> path, int flow, int[][] cap, int[][] residualCap, int[][] residualFee, FlowGraph flowGraph) {
         Iterator<Integer> it = path.iterator();
         int from = it.next();
         while (it.hasNext()) {
@@ -201,13 +187,13 @@ public class Deploy {
 
             //设置流量图，如果正向流量大于逆向流量则将正向流量设为正向流量减去逆流
             //否则将逆流减去正流
-            if (flow > flowGraph[to][from]) {
-                flowGraph[from][to] = flow - flowGraph[to][from];
-                flowGraph[to][from] = 0;
+            int backFlow = flowGraph.getTheEdgeFlow(to, from);
+            if (flow > backFlow) {
+                flowGraph.setEdgeFlow(from, to, flow - backFlow);
+                flowGraph.setEdgeFlow(to, from, 0);
             } else {
-                flowGraph[to][from] -= flow;
+                flowGraph.setEdgeFlow(to, from, backFlow - flow);
             }
-//            printMatri(flowGraph);
 
             //如果该路径费用为负，则流量经过的路径为回流，
             //如果回流的剩余容量等于0则将该回流去掉，重设为初始路径
@@ -240,14 +226,14 @@ public class Deploy {
      * @param fee   费用图
      * @return
      */
-    private static int[][] minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee) {
+    private static FlowGraph minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee) {
         int vNum = cap.length;
-        int[][] flowGraph = new int[vNum][vNum]; //流图
+        FlowGraph flowGraph = new FlowGraph(); //流图
         int[][] residualFee = new int[vNum][vNum]; //残余费用图
         int[][] residualCap = new int[vNum][vNum]; //残余容量图
         int pathFlow = 0;  //增广路径流量
-        copyTwoDArr(fee, residualFee);
-        copyTwoDArr(cap, residualCap);
+        ToolBox.copyTwoDArr(fee, residualFee);
+        ToolBox.copyTwoDArr(cap, residualCap);
 
         int flowSum = flow; //已获取的流量和
 
@@ -261,51 +247,40 @@ public class Deploy {
                 break;
             pathFlow = pathFlow > flowSum ? flowSum : pathFlow;
             reSetGraph(path, pathFlow, cap, residualCap, residualFee, flowGraph);
-//            printMatri(flowGraph);
             flowSum -= pathFlow;
         }
         return flowGraph;
     }
 
 
-    /*private static String getAFlowPath(int start, int end, int[][] flowGraph) {
+    private static String getAFlowPath(int start, int end, FlowGraph flowGraph) {
         StringBuffer sb = new StringBuffer();
-        int p = start;
-        sb.append(p + " ");
+        FlowGraph.Edge first = flowGraph.removeAEdge(start);
+        if (first == null)
+            return null;
+        int flow = first.flow;
+        int p = first.end;
+        sb.append(start + " " + p + " ");
         while (p != end) {
-
+            FlowGraph.Edge edge = flowGraph.getAUnZeroEdge(p);
+            if (edge == null)
+                return null;
+            p = edge.end;
+            sb.append(p + " ");
+            edge.flow -= flow;
         }
-    }*/
-
-
-    /**
-     * 二维int型数组复制
-     *
-     * @param src  源数组
-     * @param dest 目标数组
-     */
-    private static void copyTwoDArr(int[][] src, int[][] dest) {
-        for (int i = 0; i < src.length; i++)
-            System.arraycopy(src[i], 0, dest[i], 0, src[i].length);
+        sb.append(flow);
+        return sb.toString();
     }
 
-    /**
-     * 打印一个int型二维数组
-     *
-     * @param m 二维数组
-     */
-    private static void printMatri(int[][] m) {
-        System.out.println();
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; ++j) {
-                if (m[i][j] < Integer.MAX_VALUE) {
-                    System.out.print(m[i][j] + " ");
-                } else {
-                    System.out.print(-1 + " ");
-                }
-            }
-            System.out.println();
+    private static List<String> getAllFlowPath(int start, int end, FlowGraph flowGraph) {
+        List<String> res = new LinkedList<>();
+        String s = getAFlowPath(start, end, flowGraph);
+        while (s != null) {
+            res.add(s);
+            s = getAFlowPath(start, end, flowGraph);
         }
+        return res;
     }
 
     /**
