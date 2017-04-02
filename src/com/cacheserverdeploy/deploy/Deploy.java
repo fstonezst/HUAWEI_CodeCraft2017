@@ -307,6 +307,32 @@ public class Deploy {
         return re;
     }
 
+    /**
+     * @param c       The Capability Mat
+     * @return Queue<Pair>
+     */
+    private static Queue<Pair> sumNodeCap(int[][] c) {
+        int sum = 0;
+        Comparator<Pair> cmp;
+        cmp = new Comparator<Pair>() {
+            public int compare(Pair e1, Pair e2) {
+                if (e2.first != e1.first) {
+                    return e2.first - e1.first;
+                } else {
+                    return e2.second - e1.second;
+                }
+            }
+        };
+        Queue<Pair> re = new PriorityQueue<>(c.length, cmp);
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                sum += c[i][j];
+            }
+            re.add(new Pair(sum, i));
+        }
+        return re;
+    }
+
 }
 
 
