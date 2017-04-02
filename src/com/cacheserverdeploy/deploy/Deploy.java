@@ -192,7 +192,7 @@ public class Deploy {
      * @param residualCap 残余网络容量
      * @param residualFee 残余网络费用
      */
-    private static void reSetGraph(List<Integer> path, int flow, int[][] cap, int[][] residualCap, int[][] residualFee) {
+    private static void reSetGraph(List<Integer> path, int flow, int[][] cap, int[][] residualCap, int[][] residualFee ,int[][] flowGraph) {
         Iterator<Integer> it = path.iterator();
         int from = it.next();
         while (it.hasNext()) {
@@ -201,6 +201,15 @@ public class Deploy {
             //将该路径的容量直接减去流量
             //subject to  flow <= cap[from][to]
             residualCap[from][to] -= flow;
+
+            //设置流量图，如果正向流量大于逆向流量则将正向流量设为正向流量减去逆流
+            //否则将逆流减去正流
+            if (flowGraph[from][to] > flowGraph[to][from]){
+                flowGraph[from][to] = flowGraph[from][to] - flowGraph[to][from] ;
+                flowGraph[to][from] = 0;
+            } else {
+                flowGraph[to][from] -= flowGraph[from][to];
+            }
 
             //如果该路径费用为负，则流量经过的路径为回流，
             //如果回流的剩余容量等于0则将该回流去掉，重设为初始路径
@@ -221,6 +230,12 @@ public class Deploy {
             }
             from = to;
         }
+    }
+
+    private static void f1(){
+
+    }
+    private static void f2(){
     }
 }
 
