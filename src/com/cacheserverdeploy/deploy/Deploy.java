@@ -37,8 +37,9 @@ public class Deploy {
         line++;
         for (int i = 0; i < cNum; i++) {
             String[] consumer = graphContent[line++].trim().split(" ");
-            consumerNode[i][0] = Integer.parseInt(consumer[1]);
-            consumerNode[i][1] = Integer.parseInt(consumer[2]);
+            int consumerId = Integer.parseInt(consumer[0]);
+            consumerNode[consumerId][0] = Integer.parseInt(consumer[1]);
+            consumerNode[consumerId][1] = Integer.parseInt(consumer[2]);
         }
 
 //        for (int[] s : consumerNode)
