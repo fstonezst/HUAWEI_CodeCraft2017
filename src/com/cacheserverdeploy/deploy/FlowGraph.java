@@ -15,6 +15,30 @@ public class FlowGraph {
         int end;
         Edge next;
 
+        public int getFlow() {
+            return flow;
+        }
+
+        public void setFlow(int flow) {
+            this.flow = flow;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+
+        public void setEnd(int end) {
+            this.end = end;
+        }
+
+        public Edge getNext() {
+            return next;
+        }
+
+        public void setNext(Edge next) {
+            this.next = next;
+        }
+
         public Edge(int flow, int end, Edge next) {
             this.end = end;
             this.flow = flow;
@@ -75,7 +99,7 @@ public class FlowGraph {
         }
     }
 
-    public Edge getAUnZeroEdge(int start) {
+    public Edge getANonZeroEdge(int start) {
         Edge e = vertices.get(start);
         while (e != null && e.flow <= 0) {
             e = e.next;

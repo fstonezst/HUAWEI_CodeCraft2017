@@ -251,26 +251,59 @@ public class Deploy {
     }
 
 
+    /**
+     * 得到一条流量流
+     * 从流量图中获取最小费用流集（增广流的集合）中的一条流量流
+     * 如果起点到终点存在一条流量流则返回比赛要求的流量流格式 [start p1 ... pn end fee]
+     * 否则返回Null
+     * @param start 起点
+     * @param end 终点
+     * @param flowGraph 流量图
+     * @return 比赛要求的流量流格式 [start p1 ... pn end fee] OR null
+     *
+     */
     private static String getAFlowPath(int start, int end, FlowGraph flowGraph) {
+
         StringBuffer sb = new StringBuffer();
-        FlowGraph.Edge first = flowGraph.removeAEdge(start);
+        List<FlowGraph.Edge> path = new LinkedList<>();
+        FlowGraph.Edge first = flowGraph.getANonZeroEdge(start);
         if (first == null)
             return null;
-        int flow = first.flow;
-        int p = first.end;
+        path.add(first);
+
+        int p = first.getEnd();
         sb.append(start + " " + p + " ");
+
+        FlowGraph.Edge edge;
+        int minFlow = Integer.MIN_VALUE;
         while (p != end) {
-            FlowGraph.Edge edge = flowGraph.getAUnZeroEdge(p);
+            edge = flowGraph.getANonZeroEdge(p);
             if (edge == null)
                 return null;
-            p = edge.end;
+            path.add(edge);
+            if(edge.getFlow() < minFlow)
+                minFlow = edge.getFlow();
+            p = edge.getEnd();
             sb.append(p + " ");
-            edge.flow -= flow;
         }
-        sb.append(flow);
+
+        for(FlowGraph.Edge e:path){
+            e.setFlow(e.getFlow() - minFlow);
+        }
+
+        sb.append(minFlow);
         return sb.toString();
+
     }
 
+    /**
+     * 返回start到end的最小费用流量流集中的所有流量流
+     *
+     * @param start 起点
+     * @param end 终点
+     * @param flowGraph 流量图
+     * @return 流量流列表
+     */
     private static List<String> getAllFlowPath(int start, int end, FlowGraph flowGraph) {
         List<String> res = new LinkedList<>();
         String s = getAFlowPath(start, end, flowGraph);
