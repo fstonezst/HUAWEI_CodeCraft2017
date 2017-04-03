@@ -2,10 +2,7 @@ package com.cacheserverdeploy.matrix;
 import com.cacheserverdeploy.deploy.Pair;
 import com.cacheserverdeploy.deploy.ToolBox;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by root on 17-4-3.
@@ -113,41 +110,65 @@ public class MatriX {
         return mat;
     }
 
-    public static void initBothMat(List<int[][]> l, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
+    public static HashSet<Integer> initBothMat(List<int[][]> l, HashSet<Integer> s, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
+        HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map,k);
+        re = MatriX.treeMapToSet(topKmap);
         l.add(MatriX.initCapMat(fee,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
+        return re;
     }
 
-    public static void initBothMat(List<int[][]> l, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
+    public static HashSet<Integer> initBothMat(List<int[][]> l,HashSet<Integer> s, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
+        HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
+        re = MatriX.treeMapToSet(topKmap);
         l.add(MatriX.initCapMat(fee,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
+        return re;
     }
 
 
-    public static void updateBothMat(List<int[][]> l, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,int k){
+    public static HashSet<Integer> updateBothMat(List<int[][]> l, HashSet<Integer> s, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
+        HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map,k);
+        re = MatriX.treeMapToSet(topKmap);
         MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
         MatriX.fullCapMat(fee,consumerNode,topKmap);
         l.add(MatriX.fullCapMat(fee,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
+        return re;
     }
 
-    public static void updateBothMat(List<int[][]> l, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
+    public static HashSet<Integer> updateBothMat(List<int[][]> l, HashSet<Integer> s, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
+        HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
+        re = MatriX.treeMapToSet(topKmap);
         MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
         MatriX.fullCapMat(fee,consumerNode,topKmap);
         l.add(MatriX.fullCapMat(fee,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
+        return re;
+    }
+
+    public static HashSet<Integer> treeMapToSet(TreeMap m){
+        HashSet<Integer> s = new HashSet<>();
+        Iterator it = m.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            Integer val = (Integer) entry.getValue();
+            s.add(val);
+        }
+        return s;
+
     }
 
 }
