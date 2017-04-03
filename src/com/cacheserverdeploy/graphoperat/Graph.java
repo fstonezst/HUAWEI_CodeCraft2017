@@ -21,7 +21,8 @@ public class Graph {
         int vNum = f.length;
 
         int[] post = new int[vNum];
-        int qDstSum = 0;
+        int[] minCap = new int[vNum];
+        int qDstSum = 0; //队列中元素到起点的距离加和
         int[] res = new int[vNum];
         int[] times = new int[vNum];
         boolean[] isIn = new boolean[vNum];
@@ -30,6 +31,7 @@ public class Graph {
             isIn[i] = false;
             res[i] = Integer.MAX_VALUE;
             post[i] = -1;
+            minCap[i] = Integer.MAX_VALUE;
         }
 
         queue.add(start);
@@ -45,11 +47,17 @@ public class Graph {
             int a = queue.removeFirst();
             qDstSum -= res[a];
             for (int i = 0; i < vNum; i++) {
-                if (f[a][i] == 0 || c[a][i] <= 0)
+//                if (f[a][i] == 0 || c[a][i] <= 0)
+                if (c[a][i] <= 0)
                     continue;
                 int dst = res[a] + f[a][i];
-                if (res[i] > dst) {
+                int cap = minCap[a] < c[a][i] ? minCap[a] : c[a][i];
+
+                //如果距离更近或者距离相等但是容量更大则更新路径，
+                if (res[i] > dst || (res[i] == dst && cap>minCap[i])) {
                     post[i] = a;
+                    if(minCap[i] > c[a][i])
+                        minCap[i] = c[a][i];
                     res[i] = dst;
                     if (!isIn[i]) {
 
@@ -167,17 +175,19 @@ public class Graph {
 
     /**
      * 生成从start到end的最小费用流量图
+     * 若存在从start到end 带宽为flow的路径则返回true，否则返回false
      *
      * @param start 起点
      * @param end   终点
      * @param flow  流量
      * @param cap   容量图
      * @param fee   费用图
-     * @return
+     * @param flowGraph 流量图，用于返回
+     * @return 是否可以得到满足流量大小为flow的路径
      */
-    private static FlowGraph minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee) {
+    private static boolean minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee, FlowGraph flowGraph) {
         int vNum = cap.length;
-        FlowGraph flowGraph = new FlowGraph(); //流图
+//        FlowGraph flowGraph = new FlowGraph(); //流图
         int[][] residualFee = new int[vNum][vNum]; //残余费用图
         int[][] residualCap = new int[vNum][vNum]; //残余容量图
         int pathFlow = 0;  //增广路径流量
@@ -198,7 +208,7 @@ public class Graph {
             reSetGraph(path, pathFlow, cap, residualCap, residualFee, flowGraph);
             flowSum -= pathFlow;
         }
-        return flowGraph;
+        return flowSum > 0 ? false:true;
     }
 
 
@@ -215,9 +225,9 @@ public class Graph {
      */
     private static String getAFlowPath(int start, int end, FlowGraph flowGraph) {
 
-        StringBuffer sb = new StringBuffer();
-        List<FlowGraph.Edge> path = new LinkedList<>();
-        FlowGraph.Edge first = flowGraph.getANonZeroEdge(start);
+        StringBuffer sb = new StringBuffer(); //保存路径的顶点
+        List<FlowGraph.Edge> path = new LinkedList<>(); //保存路径的边
+        FlowGraph.Edge first = flowGraph.getANonZeroEdge(start); //获取第一条边
         if (first == null)
             return null;
         path.add(first);
@@ -226,7 +236,7 @@ public class Graph {
         sb.append(start + " " + p + " ");
 
         FlowGraph.Edge edge;
-        int minFlow = Integer.MIN_VALUE;
+        int minFlow = first.getFlow();
         while (p != end) {
             edge = flowGraph.getANonZeroEdge(p);
             if (edge == null)
@@ -258,9 +268,11 @@ public class Graph {
      * @return 流量流列表
      */
     public static List<String> getAllFlowPath(int start, int end,int flow, int[][] cap, int[][] fee ) {
-        FlowGraph flowGraph = minFeeFlow(start,end,flow,cap,fee);
+        FlowGraph flowGraph = new FlowGraph(); //流量图
+        minFeeFlow(start,end,flow,cap,fee,flowGraph);
         List<String> res = new LinkedList<>();
         String s = getAFlowPath(start, end, flowGraph);
+
         while (s != null) {
             res.add(s);
             s = getAFlowPath(start, end, flowGraph);

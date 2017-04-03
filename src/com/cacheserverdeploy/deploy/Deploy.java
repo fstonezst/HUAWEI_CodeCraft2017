@@ -53,12 +53,11 @@ public class Deploy {
     
     public static void zstTest(int[][] capacity, int[][] fee){
 
-        int start = 0, end = 3, flow = 17;
+        int start = 24, end = 22, flow = 28;
         List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee);
         for (String s : list)
             System.out.println(s);
     }
-
 
 
 
