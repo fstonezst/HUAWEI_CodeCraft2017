@@ -118,7 +118,7 @@ public class ToolBox {
         Queue<Pair> re = new PriorityQueue<>(c.length, cmp);
         for (int i = 0; i < c.length; i++) {
             for (int j = 0; j < c[0].length; j++) {
-                sum += c[i][j];
+                sum += c[i][j]; // sum of out-flow from node[i]
             }
             re.add(new Pair(sum, i));
             sum = 0;
@@ -132,7 +132,7 @@ public class ToolBox {
         Pair p;
         for (int i = 0; i < c.length; i++) {
             for (int j = 0; j < c[0].length; j++) {
-                sum += c[i][j];
+                sum += c[i][j];    // sum of out-flow from node[i]
             }
             m.put(new Pair(sum, i), i);
             sum = 0;

@@ -19,7 +19,7 @@ public class Deploy {
         int vNum = Integer.parseInt(detail[0]);
         int eNum = Integer.parseInt(detail[1]);
         int cNum = Integer.parseInt(detail[2]);
-        int cost = Integer.parseInt(graphContent[2].trim());
+        int serverCost = Integer.parseInt(graphContent[2].trim());
 
         int[][] capacity = new int[vNum][vNum];
         int[][] fee = new int[vNum][vNum];
@@ -54,7 +54,7 @@ public class Deploy {
 
         zstTest(capacity, fee);
 
-        int[][] m = MatriX.fullCapMat(capacity,consumerNode,cNum,1.5);
+        int[][] m = MatriX.fullCapMat(capacity,consumerNode,1.5);
         ToolBox.printMatri(m);
         TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(capacity),2);
         ToolBox.printPairTreeMap(map);
