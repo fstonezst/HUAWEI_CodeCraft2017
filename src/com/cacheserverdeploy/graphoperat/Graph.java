@@ -55,7 +55,7 @@ public class Graph {
                 int cap = minCap[a] < c[a][i] ? minCap[a] : c[a][i];
 
                 //如果距离更近或者距离相等但是容量更大则更新路径，
-                if (res[i] > dst || (res[i] == dst && cap>minCap[i])) {
+                if (res[i] > dst){// || (res[i] == dst && cap>minCap[i])) {
                     post[i] = a;
                     if(minCap[i] > c[a][i])
                         minCap[i] = c[a][i];
@@ -337,26 +337,37 @@ public class Graph {
 
         // cap = 扩增为N+2维
         // fee = 扩增为N+2维
-        int[][] capacity= new int[vNum+2][vNum+2];
-        int[][] f = new int[vNum+2][vNum+2];
+        set.addAll(MatriX.initBothMat(list,set,cap,fee,consumerNode,serverCost,3));
+        int[][] capacity = list.get(0);
+        int[][] f = list.get(1);
 
-        ToolBox.copyTwoDArr(cap,capacity);
-        ToolBox.copyTwoDArr(fee,f);
-        ToolBox.printMatri(capacity);
-        set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,serverCost,3));      // update with k
+//        ToolBox.copyTwoDArr(cap,capacity);
+//        ToolBox.copyTwoDArr(fee,f);
+//        new int[vNum+2][vNum+2];
+//        int[][] f = new int[vNum+2][vNum+2];
 
+
+//        set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,serverCost,3));      // update with k
+
+//        ToolBox.printMatri(capacity);
+
+
+        /*for(int i :capacity[vNum])
+            System.out.print(i+" ");
         System.out.println();
-
         for(int i :capacity[vNum+1])
             System.out.print(i+" ");
-
+*/
         ToolBox.copyTwoDArr(capacity,residualCap);
         ToolBox.copyTwoDArr(f,residualFee);
 
         do {
             flowSum += minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
             // 增加一个连接服务器，修改cap与fee
+
             set.addAll(MatriX.updateBothMat(list,set,capacity,fee,consumerNode,serverCost,3));      // update with k
+            if(set.size() >= vNum)
+                break;
 
         }while(flowSum < flow);
 
