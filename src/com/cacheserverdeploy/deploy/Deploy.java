@@ -1,6 +1,7 @@
 package com.cacheserverdeploy.deploy;
 
 import com.cacheserverdeploy.graphoperat.Graph;
+import com.cacheserverdeploy.matrix.MatriX;
 
 import java.util.*;
 
@@ -97,7 +98,7 @@ public class Deploy {
         }
     }
 
-    private static TreeMap sumNodeCap_TreeMap(int[][] c) {
+    public static TreeMap sumNodeCap_TreeMap(int[][] c) {
         int sum = 0;
         TreeMap m = new TreeMap<Double,Integer>(new desPairCmp());
         Pair p;
