@@ -1,8 +1,5 @@
 package com.cacheserverdeploy.deploy;
 
-import com.cacheserverdeploy.graphoperat.Graph;
-import com.cacheserverdeploy.matrix.MatriX;
-
 import java.util.*;
 
 public class Deploy {
@@ -21,19 +18,10 @@ public class Deploy {
         int cNum = Integer.parseInt(detail[2]);
         int cost = Integer.parseInt(graphContent[2].trim());
 
-        Queue sNodeCap;
-        TreeMap treeMap;
-        TreeMap<Double,Integer> tmap;
-
         int[][] capacity = new int[vNum][vNum];
         int[][] fee = new int[vNum][vNum];
+        int[][] consumerNode = new int[cNum][2];
 
-//        for (int i = 0; i < vNum; i++)
-//            for (int j = 0; j < vNum; j++)
-//                capacity[i][j] = Integer.MAX_VALUE;
-
-//        for(int i = 0;i < vNum ;i++)
-//            capacity[i][i] = 0;
 
         int line = 4;
         for (int i = 0; i < eNum; i++) {
@@ -46,6 +34,16 @@ public class Deploy {
             fee[end][start] = fee[start][end];
         }
 
+        line ++;
+        for(int i = 0; i<cNum;i++){
+            String[] consumer = graphContent[line++].trim().split(" ");
+            consumerNode[i][0] = Integer.parseInt(consumer[1]);
+            consumerNode[i][1] = Integer.parseInt(consumer[2]);
+        }
+
+//        for (int[] s : consumerNode)
+//            System.out.println(s[0]+" " + s[1]);
+
         zstTest(capacity,fee);
 
         /**do your work here**/
@@ -54,10 +52,11 @@ public class Deploy {
     
     public static void zstTest(int[][] capacity, int[][] fee){
 
-        int start = 24, end = 22, flow = 28;
+
+       /* int start = 24, end = 22, flow = 28;
         List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee);
         for (String s : list)
-            System.out.println(s);
+            System.out.println(s);*/
     }
 
 
@@ -112,25 +111,6 @@ public class Deploy {
         return m;
     }
 
-    private static void printPairTreeMap(TreeMap map){
-
-        if (map == null)
-            return ;
-
-        System.out.println("\nIterator TreeMap By Entry Set:\n");
-        Pair key;
-        Integer val;
-        Iterator it = map.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-
-            key = (Pair)entry.getKey();
-            val = (Integer)entry.getValue();
-            System.out.printf("<<%d,%d>%d>\n",key.first,key.second,val);
-        }
-
-
-    }
 }
 
 

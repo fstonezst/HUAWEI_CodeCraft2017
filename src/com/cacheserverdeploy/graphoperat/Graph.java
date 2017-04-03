@@ -134,6 +134,11 @@ public class Graph {
      */
     private static void reSetGraph(List<Integer> path, int flow, int[][] cap, int[][] residualCap, int[][] residualFee, FlowGraph flowGraph) {
         Iterator<Integer> it = path.iterator();
+        int start1 = path.get(0),start2 = path.get(1);
+//        int end1 = path.get(path.size()-2),end2 = path.get(path.size()-1);
+
+        residualFee[start1][start2] = 0;
+
         int from = it.next();
         while (it.hasNext()) {
             int to = it.next();
