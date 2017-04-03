@@ -1,5 +1,7 @@
 package com.cacheserverdeploy.deploy;
 
+import com.cacheserverdeploy.matrix.MatriX;
+
 import java.util.*;
 
 public class Deploy {
@@ -46,6 +48,12 @@ public class Deploy {
 //            System.out.println(s[0]+" " + s[1]);
 
         zstTest(capacity, fee);
+        /*
+        int[][] m = MatriX.fullCapMat(capacity,consumerNode,cNum,1.5);
+        ToolBox.printMatri(m);
+        TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(capacity),2);
+        ToolBox.printPairTreeMap(map);
+        */
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};

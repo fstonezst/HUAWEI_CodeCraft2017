@@ -87,16 +87,14 @@ public class ToolBox {
 
     public static TreeMap topKTreeMap(TreeMap map, int k) {
         TreeMap re = new TreeMap<Double, Integer>(new desPairCmp());
-        while (k-- > 0) {
-            Pair key;
-            Integer val;
-            Iterator it = map.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry entry = (Map.Entry) it.next();
-                key = (Pair) entry.getKey();
-                val = (Integer) entry.getValue();
-                re.put(key, val);
-            }
+        Pair key;
+        Integer val;
+        Iterator it = map.entrySet().iterator();
+        while (k-- > 0 && it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            key = (Pair) entry.getKey();
+            val = (Integer) entry.getValue();
+            re.put(key, val);
         }
         return re;
     }

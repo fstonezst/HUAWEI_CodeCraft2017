@@ -11,9 +11,10 @@ import java.util.TreeMap;
  * Created by root on 17-4-3.
  */
 public class MatriX {
-    public static int[][] fullCapMat(int[][] capacity, int[][] fee, int cNum, double multiPower){
+    public static int[][] fullCapMat(int[][] capacity, int[][] consumerNode, int cNum, double multiPower){
         int N = capacity.length;
         int K = (int)(cNum*multiPower);
+        K = K>N?N:K;
         int[][] fm = new int[N+2][N+2];
         TreeMap map = ToolBox.sumNodeCap_TreeMap(capacity);
         TreeMap topKmap = ToolBox.topKTreeMap(map,K);
@@ -36,11 +37,13 @@ public class MatriX {
         }
 
         /*init super END node: #N */
-        for (int i = 0; i < N; i++)
-            for (int j = i ; j < N; j++) {
-                if (fee[i][j] != 0)
-                    fm[j][N+1]=fm[N+1][j] = capacity[i][j];
+        int neighbour;
+        for (int i = 0; i < consumerNode.length; i++) {
+            if (consumerNode[i][1] != 0) {
+                neighbour = consumerNode[i][0];
+                fm[neighbour][N + 1] = fm[N + 1][neighbour] = consumerNode[i][1];
             }
+        }
 
         return fm;
     }
