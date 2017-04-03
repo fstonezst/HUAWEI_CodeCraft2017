@@ -5,6 +5,7 @@ import com.cacheserverdeploy.matrix.MatriX;
 import java.util.*;
 
 public class Deploy {
+
     /**
      * 你需要完成的入口
      * <功能详细描述>
@@ -23,6 +24,10 @@ public class Deploy {
         int[][] capacity = new int[vNum][vNum];
         int[][] fee = new int[vNum][vNum];
         int[][] consumerNode = new int[cNum][2];
+
+        for(int i = 0;i<fee.length;i++)
+            for(int j=0;j<fee[i].length;j++)
+                fee[i][j] = Integer.MAX_VALUE;
 
 
         int line = 4;
@@ -48,19 +53,17 @@ public class Deploy {
 //            System.out.println(s[0]+" " + s[1]);
 
         zstTest(capacity, fee);
-        /*
+
         int[][] m = MatriX.fullCapMat(capacity,consumerNode,cNum,1.5);
         ToolBox.printMatri(m);
         TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(capacity),2);
         ToolBox.printPairTreeMap(map);
-        */
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
     }
 
     public static void zstTest(int[][] capacity, int[][] fee) {
-
 
        /* int start = 24, end = 22, flow = 28;
         List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee);

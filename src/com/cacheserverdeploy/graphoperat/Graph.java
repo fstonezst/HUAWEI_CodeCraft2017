@@ -87,7 +87,7 @@ public class Graph {
      * @param post 保存路径中每个节点的前驱节点标号
      * @return 路径
      */
-    private static List<Integer> getPath(int end, int[] post) {
+    private static List<Integer> getPath(int start,int end, int[] post) {
         LinkedList<Integer> list = new LinkedList<Integer>();
         if(post == null)
             return list;
@@ -97,6 +97,8 @@ public class Graph {
             list.addFirst(post[p]);
             p = post[p];
         }
+        if(p != start)
+            return null;
         return list;
     }
 
@@ -109,6 +111,7 @@ public class Graph {
      */
 
     private static int getMinCap(List<Integer> path, int[][] cap) {
+        if(path == null || path.size()<2) return 0;
         int min = Integer.MAX_VALUE;
         Iterator<Integer> it = path.iterator();
         int from = it.next();
@@ -121,6 +124,20 @@ public class Graph {
         return min;
     }
 
+    /**
+     * 保持超级源点与已选服务器的连接
+     * @param residualCap 残余容量图
+     * @param residualFee 残余费用图
+     */
+    private static void maintainServerConnect(int[][] residualCap, int[][] residualFee){
+        int superStartId = residualFee.length-2;
+        for(int i = 0 ;i<residualFee[superStartId].length;i++){
+            if(residualFee[superStartId][i] == 0 && residualCap[superStartId][i] == 0){
+                for(int j = 0; j< residualCap[i].length;j++)
+                    residualCap[superStartId][i] +=residualCap[i][j];
+            }
+        }
+    }
 
     /**
      * 根据新的增广路径设置回流、回流的容量以及流量图
@@ -175,7 +192,10 @@ public class Graph {
                 }
             }
             from = to;
+
+
         }
+
     }
 
     /**
@@ -190,30 +210,29 @@ public class Graph {
      * @param flowGraph 流量图，用于返回
      * @return 是否可以得到满足流量大小为flow的路径
      */
-    private static boolean minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee, FlowGraph flowGraph) {
+    private static int minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee, FlowGraph flowGraph) {
         int vNum = cap.length;
-//        FlowGraph flowGraph = new FlowGraph(); //流图
         int[][] residualFee = new int[vNum][vNum]; //残余费用图
         int[][] residualCap = new int[vNum][vNum]; //残余容量图
         int pathFlow = 0;  //增广路径流量
         ToolBox.copyTwoDArr(fee, residualFee);
         ToolBox.copyTwoDArr(cap, residualCap);
 
-        int flowSum = flow; //已获取的流量和
+        int flowSum = 0; //已获取的流量和
 
-        while (flowSum > 0) {
+        while (flowSum < flow) {
             int[] post = SPFA(start, residualFee, residualCap);
-            List<Integer> path = getPath(end, post);
-            if (path.get(0) != start)
+            List<Integer> path = getPath(start, end, post);
+            if (path == null)
                 break;
             pathFlow = getMinCap(path, residualCap);
             if (pathFlow == 0)
                 break;
-            pathFlow = pathFlow > flowSum ? flowSum : pathFlow;
+            pathFlow = pathFlow > flow ? flow : pathFlow;
             reSetGraph(path, pathFlow, cap, residualCap, residualFee, flowGraph);
-            flowSum -= pathFlow;
+            flowSum += pathFlow;
         }
-        return flowSum > 0 ? false:true;
+        return flowSum;
     }
 
 
@@ -226,7 +245,6 @@ public class Graph {
      * @param end 终点
      * @param flowGraph 流量图
      * @return 比赛要求的流量流格式 [start p1 ... pn end fee] OR null
-     *
      */
     private static String getAFlowPath(int start, int end, FlowGraph flowGraph) {
 
@@ -274,7 +292,9 @@ public class Graph {
      */
     public static List<String> getAllFlowPath(int start, int end,int flow, int[][] cap, int[][] fee ) {
         FlowGraph flowGraph = new FlowGraph(); //流量图
-        minFeeFlow(start,end,flow,cap,fee,flowGraph);
+
+        int currFlow = minFeeFlow(start,end,flow,cap,fee,flowGraph);
+
         List<String> res = new LinkedList<>();
         String s = getAFlowPath(start, end, flowGraph);
 
