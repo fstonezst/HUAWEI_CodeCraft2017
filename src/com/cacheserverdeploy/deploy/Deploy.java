@@ -58,6 +58,8 @@ public class Deploy {
         ToolBox.printMatri(m);
         TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(capacity),2);
         ToolBox.printPairTreeMap(map);
+        int[][] f = MatriX.fullFeeMat(fee,consumerNode,map,serverCost);
+        ToolBox.printMatri(f);
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
