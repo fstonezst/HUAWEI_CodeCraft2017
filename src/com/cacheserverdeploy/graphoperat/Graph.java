@@ -342,10 +342,13 @@ public class Graph {
 
         ToolBox.copyTwoDArr(cap,capacity);
         ToolBox.copyTwoDArr(fee,f);
+        ToolBox.printMatri(capacity);
         set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,serverCost,3));      // update with k
 
-//        for(int i :capacity[vNum+1])
-//            System.out.print(i+" ");
+        System.out.println();
+
+        for(int i :capacity[vNum+1])
+            System.out.print(i+" ");
 
         ToolBox.copyTwoDArr(capacity,residualCap);
         ToolBox.copyTwoDArr(f,residualFee);
