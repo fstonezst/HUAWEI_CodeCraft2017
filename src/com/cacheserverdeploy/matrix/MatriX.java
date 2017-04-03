@@ -56,7 +56,7 @@ public class MatriX {
      * @return                     Full Capability Mat
      */
     public static int[][] fullCapMat(int[][] mat, int[][] consumerNode, TreeMap topKmap){
-        int N = mat.length;
+        int N = mat.length-2; // node server's Mat index, in (N+2)*(N+2) Format
 
         /*update super START node: #N */
         Pair key;
