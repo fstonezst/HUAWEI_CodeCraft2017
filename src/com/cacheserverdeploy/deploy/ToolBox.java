@@ -99,6 +99,27 @@ public class ToolBox {
         return re;
     }
 
+
+    public static TreeMap topKTreeMap(TreeMap map, int[][] consumerNode, double multi) {
+        TreeMap re = new TreeMap<Double, Integer>(new desPairCmp());
+        Pair key;
+        Integer val, s1=0,s2=0,TH;
+
+        for(int i =0;i<consumerNode.length;i++)
+            s1+=consumerNode[i][2];
+        TH = (int)(s1*multi);
+
+        Iterator it = map.entrySet().iterator();
+        while (s2 < TH && it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            key = (Pair) entry.getKey();
+            val = (Integer) entry.getValue();
+            s2 += key.first;
+            re.put(key, val);
+        }
+        return re;
+    }
+
     /**
      * @param c The Capability Mat
      * @return Queue<Pair>
