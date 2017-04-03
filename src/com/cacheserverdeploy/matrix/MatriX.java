@@ -32,8 +32,10 @@ public class MatriX {
             Map.Entry entry = (Map.Entry)it.next();
             key = (Pair)entry.getKey();
             val = (Integer)entry.getValue();
+            /*
             for (int i = 0; i < N; i++)
                 if (i == val)
+                */
                     mat[val][N]= mat[N][val]=key.first;
         }
 
