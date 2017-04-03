@@ -15,7 +15,7 @@ public class MatriX {
         int N = capacity.length;
         int K = (int)(cNum*multiPower);
         int[][] fm = new int[N+2][N+2];
-        TreeMap map = Deploy.sumNodeCap_TreeMap(capacity);
+        TreeMap map = ToolBox.sumNodeCap_TreeMap(capacity);
         TreeMap topKmap = ToolBox.topKTreeMap(map,K);
         ToolBox.copyTwoDArr(capacity,fm);
         for (int i = N;i<N+2;i++)

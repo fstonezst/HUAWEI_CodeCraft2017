@@ -34,8 +34,8 @@ public class Deploy {
             fee[end][start] = fee[start][end];
         }
 
-        line ++;
-        for(int i = 0; i<cNum;i++){
+        line++;
+        for (int i = 0; i < cNum; i++) {
             String[] consumer = graphContent[line++].trim().split(" ");
             consumerNode[i][0] = Integer.parseInt(consumer[1]);
             consumerNode[i][1] = Integer.parseInt(consumer[2]);
@@ -44,13 +44,13 @@ public class Deploy {
 //        for (int[] s : consumerNode)
 //            System.out.println(s[0]+" " + s[1]);
 
-        zstTest(capacity,fee);
+        zstTest(capacity, fee);
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
     }
-    
-    public static void zstTest(int[][] capacity, int[][] fee){
+
+    public static void zstTest(int[][] capacity, int[][] fee) {
 
 
        /* int start = 24, end = 22, flow = 28;
@@ -59,57 +59,6 @@ public class Deploy {
             System.out.println(s);*/
     }
 
-
-
-    /**
-     * @param c       The Capability Mat
-     * @return Queue<Pair>
-     */
-    private static Queue<Pair> sumNodeCap(int[][] c) {
-        int sum = 0;
-        Comparator<Pair> cmp;
-        cmp = new Comparator<Pair>() {
-            public int compare(Pair e1, Pair e2) {
-                if (e2.first != e1.first) {
-                    return e2.first - e1.first;
-                } else {
-                    return e2.second - e1.second;
-                }
-            }
-        };
-        Queue<Pair> re = new PriorityQueue<>(c.length, cmp);
-        for (int i = 0; i < c.length; i++) {
-            for (int j = 0; j < c[0].length; j++) {
-                sum += c[i][j];
-            }
-            re.add(new Pair(sum, i));
-            sum = 0;
-        }
-        return re;
-    }
-
-    private static void printQueuePair(Queue<Pair> q){
-        Iterator<Pair> it  = q.iterator();
-        Pair tmp;// = new Pair();
-        while (it.hasNext()) {
-            tmp = it.next();
-            System.out.printf("<%d,%d>\n", tmp.first, tmp.second);
-        }
-    }
-
-    public static TreeMap sumNodeCap_TreeMap(int[][] c) {
-        int sum = 0;
-        TreeMap m = new TreeMap<Double,Integer>(new desPairCmp());
-        Pair p;
-        for (int i = 0; i < c.length; i++) {
-            for (int j = 0; j < c[0].length; j++) {
-                sum += c[i][j];
-            }
-            m.put(new Pair(sum, i),i);
-            sum = 0;
-        }
-        return m;
-    }
 
 }
 

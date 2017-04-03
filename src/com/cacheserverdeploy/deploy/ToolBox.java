@@ -1,9 +1,6 @@
 package com.cacheserverdeploy.deploy;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Queue;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by peter on 2017/4/2.
@@ -54,10 +51,11 @@ public class ToolBox {
 
     /**
      * Print Pair-type in Queue
+     *
      * @param q
      */
-    public static void printQueuePair(Queue<Pair> q){
-        Iterator<Pair> it  = q.iterator();
+    public static void printQueuePair(Queue<Pair> q) {
+        Iterator<Pair> it = q.iterator();
         Pair tmp;// = new Pair();
         while (it.hasNext()) {
             tmp = it.next();
@@ -67,38 +65,80 @@ public class ToolBox {
 
     /**
      * Print Pair-type in TreeMap
+     *
      * @param map
      */
-    public static void printPairTreeMap(TreeMap map){
+    public static void printPairTreeMap(TreeMap map) {
         if (map == null)
-            return ;
+            return;
         System.out.println("\nIterator TreeMap By Entry Set:\n");
         Pair key;
         Integer val;
         Iterator it = map.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
 
-            key = (Pair)entry.getKey();
-            val = (Integer)entry.getValue();
-            System.out.printf("<<%d,%d>%d>\n",key.first,key.second,val);
+            key = (Pair) entry.getKey();
+            val = (Integer) entry.getValue();
+            System.out.printf("<<%d,%d>%d>\n", key.first, key.second, val);
         }
     }
 
 
-    public static TreeMap topKTreeMap(TreeMap map,int k){
-        TreeMap re = new TreeMap<Double,Integer>(new desPairCmp());
-        while(k-->0){
+    public static TreeMap topKTreeMap(TreeMap map, int k) {
+        TreeMap re = new TreeMap<Double, Integer>(new desPairCmp());
+        while (k-- > 0) {
             Pair key;
             Integer val;
             Iterator it = map.entrySet().iterator();
-            while(it.hasNext()) {
-                Map.Entry entry = (Map.Entry)it.next();
-                key = (Pair)entry.getKey();
-                val = (Integer)entry.getValue();
-                re.put(key,val);
+            while (it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+                key = (Pair) entry.getKey();
+                val = (Integer) entry.getValue();
+                re.put(key, val);
             }
         }
         return re;
+    }
+
+    /**
+     * @param c The Capability Mat
+     * @return Queue<Pair>
+     */
+    private static Queue<Pair> sumNodeCap(int[][] c) {
+        int sum = 0;
+        Comparator<Pair> cmp;
+        cmp = new Comparator<Pair>() {
+            public int compare(Pair e1, Pair e2) {
+                if (e2.first != e1.first) {
+                    return e2.first - e1.first;
+                } else {
+                    return e2.second - e1.second;
+                }
+            }
+        };
+        Queue<Pair> re = new PriorityQueue<>(c.length, cmp);
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                sum += c[i][j];
+            }
+            re.add(new Pair(sum, i));
+            sum = 0;
+        }
+        return re;
+    }
+
+    public static TreeMap sumNodeCap_TreeMap(int[][] c) {
+        int sum = 0;
+        TreeMap m = new TreeMap<Double, Integer>(new desPairCmp());
+        Pair p;
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                sum += c[i][j];
+            }
+            m.put(new Pair(sum, i), i);
+            sum = 0;
+        }
+        return m;
     }
 }
