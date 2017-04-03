@@ -147,11 +147,13 @@ public class ToolBox {
         return re;
     }
 
-    public static TreeMap sumNodeCap_TreeMap(int[][] c) {
+    public static TreeMap sumNodeCap_TreeMap(int[][] c, HashSet<Integer> s) {
         int sum = 0;
         TreeMap m = new TreeMap<Double, Integer>(new desPairCmp());
         Pair p;
         for (int i = 0; i < c.length; i++) {
+            if(s.contains(i))
+                continue;
             for (int j = 0; j < c[0].length; j++) {
                 sum += c[i][j];    // sum of out-flow from node[i]
             }
