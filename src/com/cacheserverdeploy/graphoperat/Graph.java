@@ -2,6 +2,7 @@ package com.cacheserverdeploy.graphoperat;
 
 import java.util.*;
 import com.cacheserverdeploy.deploy.ToolBox;
+import com.cacheserverdeploy.matrix.MatriX;
 
 /**
  * Created by peter on 2017/4/3.
@@ -209,7 +210,7 @@ public class Graph {
      * @param fee   费用图
      * @param flowGraph 流量图，用于返回
      * @return 是否可以得到满足流量大小为flow的路径
-     */
+     *//*
     private static int minFeeFlow(int start, int end, int flow, int[][] cap, int[][] fee, FlowGraph flowGraph) {
         int vNum = cap.length;
         int[][] residualFee = new int[vNum][vNum]; //残余费用图
@@ -233,8 +234,42 @@ public class Graph {
             flowSum += pathFlow;
         }
         return flowSum;
-    }
+    }*/
 
+/**
+     * 生成从start到end的最小费用流量图
+     * 若存在从start到end 带宽为flow的路径则返回true，否则返回false
+     *
+     * @param start 起点
+     * @param end   终点
+     * @param flow  流量
+     * @param cap   容量图
+     * @param flowGraph 流量图，用于返回
+     * @return 是否可以得到满足流量大小为flow的路径
+     */
+    private static int minFeeFlow(int start, int end, int flow, int[][] cap, int[][] residualCap, int[][] residualFee,FlowGraph flowGraph) {
+//        int vNum = cap.length;
+//        int[][] residualFee = new int[vNum][vNum]; //残余费用图
+//        int[][] residualCap = new int[vNum][vNum]; //残余容量图
+//        ToolBox.copyTwoDArr(fee, residualFee);
+//        ToolBox.copyTwoDArr(cap, residualCap);
+        int pathFlow;  //增广路径流量
+        int flowSum = 0; //已获取的流量和
+
+        while (flowSum < flow) {
+            int[] post = SPFA(start, residualFee, residualCap);
+            List<Integer> path = getPath(start, end, post);
+            if (path == null)
+                break;
+            pathFlow = getMinCap(path, residualCap);
+            if (pathFlow == 0)
+                break;
+            pathFlow = pathFlow > flow ? flow : pathFlow;
+            reSetGraph(path, pathFlow, cap, residualCap, residualFee, flowGraph);
+            flowSum += pathFlow;
+        }
+        return flowSum;
+    }
 
     /**
      * 得到一条流量流
@@ -292,8 +327,21 @@ public class Graph {
      */
     public static List<String> getAllFlowPath(int start, int end,int flow, int[][] cap, int[][] fee ) {
         FlowGraph flowGraph = new FlowGraph(); //流量图
+        int vNum = cap.length;
+        int flowSum = 0;
 
-        int currFlow = minFeeFlow(start,end,flow,cap,fee,flowGraph);
+        int[][] residualFee = new int[vNum][vNum]; //残余费用图
+        int[][] residualCap = new int[vNum][vNum]; //残余容量图
+
+        // cap = 扩增为N+2维
+        // fee = 扩增为N+2维
+        ToolBox.copyTwoDArr(cap,residualCap);
+        ToolBox.copyTwoDArr(fee,residualFee);
+
+        do {
+            flowSum += minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
+            // 增加一个连接服务器，修改cap与fee
+        }while(flowSum < flow);
 
         List<String> res = new LinkedList<>();
         String s = getAFlowPath(start, end, flowGraph);

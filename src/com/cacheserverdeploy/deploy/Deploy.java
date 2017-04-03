@@ -1,5 +1,6 @@
 package com.cacheserverdeploy.deploy;
 
+import com.cacheserverdeploy.graphoperat.Graph;
 import com.cacheserverdeploy.matrix.MatriX;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public class Deploy {
                 fee[i][j] = Integer.MAX_VALUE;
 
 
+
         int line = 4;
         for (int i = 0; i < eNum; i++) {
             String[] edge = graphContent[line++].trim().split(" ");
@@ -52,7 +54,7 @@ public class Deploy {
 //        for (int[] s : consumerNode)
 //            System.out.println(s[0]+" " + s[1]);
 
-        zstTest(capacity, fee);
+//        zstTest(capacity, fee);
 
         int[][] m = MatriX.fullCapMat(capacity,consumerNode,1.5);
         ToolBox.printMatri(m);
@@ -60,19 +62,23 @@ public class Deploy {
         ToolBox.printPairTreeMap(map);
         int[][] f = MatriX.fullFeeMat(fee,consumerNode,map,serverCost);
         ToolBox.printMatri(f);
-
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
     }
 
-    public static void zstTest(int[][] capacity, int[][] fee) {
 
-       /* int start = 24, end = 22, flow = 28;
-        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee);
+    public static void zstTest(int[][] capacity, int[][] fee, int[][] consumerNode,int serverCost) {
+
+        int[][] newCap = MatriX.fullCapMat(capacity,consumerNode,1.2);
+        TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(newCap),1);
+        int[][] newFee = MatriX.fullFeeMat(fee,consumerNode,map,serverCost);
+
+        int start = 24, end = 22, flow = 28;
+        List<String> list = Graph.getAllFlowPath(start, end, flow, newCap, fee);
         for (String s : list)
-            System.out.println(s);*/
-    }
+            System.out.println(s);
 
+    }
 
 }
 
