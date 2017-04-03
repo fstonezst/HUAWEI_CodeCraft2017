@@ -77,7 +77,7 @@ public class MatriX {
             val = (Integer) entry.getValue();
             for (int i = 0; i < N; i++)
                 if (i == val)
-                    mat[val][N] = mat[N][val] = server_price;
+                    mat[val][N] = mat[N][val] = server_cost;
         }
 
         /*init super END node's fee: #N */
