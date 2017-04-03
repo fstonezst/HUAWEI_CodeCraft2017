@@ -116,7 +116,7 @@ public class MatriX {
         map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map,k);
         re = MatriX.treeMapToSet(topKmap);
-        l.add(MatriX.initCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.initCapMat(capacity,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
         return re;
     }
@@ -127,7 +127,7 @@ public class MatriX {
         map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
         re = MatriX.treeMapToSet(topKmap);
-        l.add(MatriX.initCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.initCapMat(capacity,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
         return re;
     }
@@ -139,9 +139,7 @@ public class MatriX {
         map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map,k);
         re = MatriX.treeMapToSet(topKmap);
-        MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
-        MatriX.fullCapMat(fee,consumerNode,topKmap);
-        l.add(MatriX.fullCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.fullCapMat(capacity,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
         return re;
     }
@@ -152,9 +150,7 @@ public class MatriX {
         map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
         re = MatriX.treeMapToSet(topKmap);
-        MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
-        MatriX.fullCapMat(fee,consumerNode,topKmap);
-        l.add(MatriX.fullCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.fullCapMat(capacity,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
         return re;
     }
