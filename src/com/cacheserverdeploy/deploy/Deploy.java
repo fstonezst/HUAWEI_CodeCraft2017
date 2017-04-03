@@ -55,13 +55,12 @@ public class Deploy {
 //            System.out.println(s[0]+" " + s[1]);
 
 //        zstTest(capacity, fee);
+        MatriX.initBothMat(capacity,fee,consumerNode,serverCost,3);        // init with k
+        MatriX.initBothMat(capacity,fee,consumerNode,serverCost,1.5);   // init with multi
 
-        int[][] m = MatriX.fullCapMat(capacity,consumerNode,1.5);
-        ToolBox.printMatri(m);
-        TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(capacity),2);
-        ToolBox.printPairTreeMap(map);
-        int[][] f = MatriX.fullFeeMat(fee,consumerNode,map,serverCost);
-        ToolBox.printMatri(f);
+        MatriX.updateBothMat(capacity,fee,consumerNode,serverCost,3);      // update with k
+        MatriX.updateBothMat(capacity,fee,consumerNode,serverCost,1.5); // update with multi
+
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
     }
