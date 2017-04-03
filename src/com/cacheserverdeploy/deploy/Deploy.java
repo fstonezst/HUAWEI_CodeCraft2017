@@ -55,11 +55,12 @@ public class Deploy {
 //            System.out.println(s[0]+" " + s[1]);
 
 //        zstTest(capacity, fee);
-        MatriX.initBothMat(capacity,fee,consumerNode,serverCost,3);        // init with k
-        MatriX.initBothMat(capacity,fee,consumerNode,serverCost,1.5);   // init with multi
+        List<int[][]> l = new LinkedList<>();
+        MatriX.initBothMat(l,capacity,fee,consumerNode,serverCost,3);        // init with k
+        MatriX.initBothMat(l,capacity,fee,consumerNode,serverCost,1.5);   // init with multi
 
-        MatriX.updateBothMat(capacity,fee,consumerNode,serverCost,3);      // update with k
-        MatriX.updateBothMat(capacity,fee,consumerNode,serverCost,1.5); // update with multi
+        MatriX.updateBothMat(l,capacity,fee,consumerNode,serverCost,3);      // update with k
+        MatriX.updateBothMat(l,capacity,fee,consumerNode,serverCost,1.5); // update with multi
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};

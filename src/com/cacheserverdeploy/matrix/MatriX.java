@@ -3,6 +3,7 @@ import com.cacheserverdeploy.deploy.Pair;
 import com.cacheserverdeploy.deploy.ToolBox;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -112,37 +113,41 @@ public class MatriX {
         return mat;
     }
 
-    public static void initBothMat(int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,int k){
+    public static void initBothMat(List<int[][]> l, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
         TreeMap map,topKmap;
         map = ToolBox.sumNodeCap_TreeMap(capacity);
         topKmap = ToolBox.topKTreeMap(map,k);
-        MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
-        MatriX.initCapMat(fee,consumerNode,topKmap);
+        l.add(MatriX.initCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
     }
 
-    public static void initBothMat(int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
+    public static void initBothMat(List<int[][]> l, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
         TreeMap map,topKmap;
         map = ToolBox.sumNodeCap_TreeMap(capacity);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
-        MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
-        MatriX.initCapMat(fee,consumerNode,topKmap);
+        l.add(MatriX.initCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
     }
 
 
-    public static void updateBothMat(int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,int k){
+    public static void updateBothMat(List<int[][]> l, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,int k){
         TreeMap map,topKmap;
         map = ToolBox.sumNodeCap_TreeMap(capacity);
         topKmap = ToolBox.topKTreeMap(map,k);
         MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
         MatriX.fullCapMat(fee,consumerNode,topKmap);
+        l.add(MatriX.fullCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
     }
 
-    public static void updateBothMat(int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
+    public static void updateBothMat(List<int[][]> l, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
         TreeMap map,topKmap;
         map = ToolBox.sumNodeCap_TreeMap(capacity);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
         MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
         MatriX.fullCapMat(fee,consumerNode,topKmap);
+        l.add(MatriX.fullCapMat(fee,consumerNode,topKmap));
+        l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
     }
 
 }
