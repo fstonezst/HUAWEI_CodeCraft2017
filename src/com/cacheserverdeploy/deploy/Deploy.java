@@ -54,13 +54,14 @@ public class Deploy {
 //        for (int[] s : consumerNode)
 //            System.out.println(s[0]+" " + s[1]);
 
-//        zstTest(capacity, fee);
-        List<int[][]> l = new LinkedList<>();
-        MatriX.initBothMat(l,capacity,fee,consumerNode,serverCost,3);        // init with k
-        MatriX.initBothMat(l,capacity,fee,consumerNode,serverCost,1.5);   // init with multi
-
-        MatriX.updateBothMat(l,capacity,fee,consumerNode,serverCost,3);      // update with k
-        MatriX.updateBothMat(l,capacity,fee,consumerNode,serverCost,1.5); // update with multi
+        zstTest(capacity, fee,consumerNode,serverCost);
+//        List<int[][]> l = new LinkedList<>();
+//        HashSet<Integer> s = new HashSet<>();
+//        MatriX.initBothMat(l,s,capacity,fee,consumerNode,serverCost,3);        // init with k
+//        MatriX.initBothMat(l,s,capacity,fee,consumerNode,serverCost,1.5);   // init with multi
+//
+//        MatriX.updateBothMat(l,s,capacity,fee,consumerNode,serverCost,3);      // update with k
+//        MatriX.updateBothMat(l,s,capacity,fee,consumerNode,serverCost,1.5); // update with multi
 
         /**do your work here**/
         return new String[]{"17", "\r\n", "0 8 0 20"};
@@ -69,14 +70,17 @@ public class Deploy {
 
     public static void zstTest(int[][] capacity, int[][] fee, int[][] consumerNode,int serverCost) {
 
-        int[][] newCap = MatriX.fullCapMat(capacity,consumerNode,1.2);
-        TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(newCap),1);
-        int[][] newFee = MatriX.fullFeeMat(fee,consumerNode,map,serverCost);
-
-        int start = 24, end = 22, flow = 28;
-        List<String> list = Graph.getAllFlowPath(start, end, flow, newCap, fee);
+//        int[][] newCap = MatriX.fullCapMat(capacity,consumerNode,1.2);
+//        TreeMap map = ToolBox.topKTreeMap(ToolBox.sumNodeCap_TreeMap(newCap),1);
+//        int[][] newFee = MatriX.fullFeeMat(fee,consumerNode,map,serverCost);
+//
+        int start = capacity.length, end = capacity.length+1, flow = 0;
+        for(int[] c:consumerNode)
+            flow += c[1];
+        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
         for (String s : list)
             System.out.println(s);
+
 
     }
 

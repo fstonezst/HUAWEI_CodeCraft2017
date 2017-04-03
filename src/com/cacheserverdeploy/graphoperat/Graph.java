@@ -325,22 +325,32 @@ public class Graph {
      * @param fee   费用图
      * @return 流量流列表
      */
-    public static List<String> getAllFlowPath(int start, int end,int flow, int[][] cap, int[][] fee ) {
+    public static List<String> getAllFlowPath(int start, int end,int flow, int[][] cap, int[][] fee,int[][] consumerNode,int serverCost ) {
         FlowGraph flowGraph = new FlowGraph(); //流量图
         int vNum = cap.length;
         int flowSum = 0;
+        HashSet<Integer> set = new HashSet<>();
+        List<int[][]> list = new LinkedList<>();
 
         int[][] residualFee = new int[vNum][vNum]; //残余费用图
         int[][] residualCap = new int[vNum][vNum]; //残余容量图
 
         // cap = 扩增为N+2维
         // fee = 扩增为N+2维
-        ToolBox.copyTwoDArr(cap,residualCap);
-        ToolBox.copyTwoDArr(fee,residualFee);
+        int[][] capacity= new int[vNum+2][vNum+2];
+        int[][] f = new int[vNum+2][vNum+2];
+
+        ToolBox.copyTwoDArr(cap,capacity);
+        ToolBox.copyTwoDArr(fee,f);
+        set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,serverCost,3));      // update with k
+        ToolBox.copyTwoDArr(capacity,residualCap);
+        ToolBox.copyTwoDArr(f,residualFee);
 
         do {
             flowSum += minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
             // 增加一个连接服务器，修改cap与fee
+            set.addAll(MatriX.updateBothMat(list,set,capacity,fee,consumerNode,serverCost,3));      // update with k
+
         }while(flowSum < flow);
 
         List<String> res = new LinkedList<>();
