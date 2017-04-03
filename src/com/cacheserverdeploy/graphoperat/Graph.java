@@ -332,8 +332,8 @@ public class Graph {
         HashSet<Integer> set = new HashSet<>();
         List<int[][]> list = new LinkedList<>();
 
-        int[][] residualFee = new int[vNum][vNum]; //残余费用图
-        int[][] residualCap = new int[vNum][vNum]; //残余容量图
+        int[][] residualFee = new int[vNum+2][vNum+2]; //残余费用图
+        int[][] residualCap = new int[vNum+2][vNum+2]; //残余容量图
 
         // cap = 扩增为N+2维
         // fee = 扩增为N+2维
@@ -343,6 +343,10 @@ public class Graph {
         ToolBox.copyTwoDArr(cap,capacity);
         ToolBox.copyTwoDArr(fee,f);
         set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,serverCost,3));      // update with k
+
+//        for(int i :capacity[vNum+1])
+//            System.out.print(i+" ");
+
         ToolBox.copyTwoDArr(capacity,residualCap);
         ToolBox.copyTwoDArr(f,residualFee);
 
