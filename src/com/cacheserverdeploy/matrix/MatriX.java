@@ -154,6 +154,7 @@ public class MatriX {
         MatriX.fullCapMat(capacity,consumerNode,topKmap);
         MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
 
+
         return re;
     }
 

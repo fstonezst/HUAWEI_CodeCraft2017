@@ -170,6 +170,7 @@ public class Graph {
             int oldFlow;
             if (flow > backFlow) {
                 oldFlow = flowGraph.getTheEdgeFlow(from, to);
+
                 flowGraph.setEdgeFlow(from, to, flow + oldFlow - backFlow);
                 flowGraph.setEdgeFlow(to, from, 0);
             } else {
@@ -251,6 +252,7 @@ public class Graph {
      * @return 是否可以得到满足流量大小为flow的路径
      */
     private static HashMap<Integer, Integer> minFeeFlow(int start, int end, int flow, int[][] cap, int[][] residualCap, int[][] residualFee, FlowGraph flowGraph) {
+
 //        int vNum = cap.length;
 //        int[][] residualFee = new int[vNum][vNum]; //残余费用图
 //        int[][] residualCap = new int[vNum][vNum]; //残余容量图
@@ -261,6 +263,7 @@ public class Graph {
         int flowSum = 0; //已获取的流量和
 
         List<List<Integer>> list = new ArrayList<>();
+
         while (flowSum < flow) {
             int[] post = SPFA(start, residualFee, residualCap);
             List<Integer> path = getPath(start, end, post);
@@ -380,6 +383,7 @@ public class Graph {
     public static List<String> getAllFlowPath(int start, int end, int flow, int[][] cap, int[][] fee, int[][] consumerNode, int serverCost) {
         int timeOut = 3* 1000;
         long startTime = System.currentTimeMillis();
+
         int vNum = cap.length;
         int flowSum;
         HashSet<Integer> set = new HashSet<>();
@@ -401,6 +405,7 @@ public class Graph {
         set.addAll(MatriX.initBothMat(list, set, cap, fee, consumerNode, 0, k));
         // cap = 扩增为N+2维
         // fee = 扩增为N+2维
+
         int[][] capacity = list.get(0);
         int[][] f = list.get(1);
 
@@ -439,6 +444,7 @@ public class Graph {
 
 
             if (set.size() >= vNum) {
+
                 break;
             }
 
@@ -459,5 +465,6 @@ public class Graph {
         }
         System.out.println("fee:" + ToolBox.countPathListFee(res, f, serverCost));
         return bestRes;
+
     }
 }
