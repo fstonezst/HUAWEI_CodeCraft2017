@@ -57,8 +57,8 @@ public class Deploy {
         zstTest(capacity, fee,consumerNode,serverCost);
 //        List<int[][]> l = new LinkedList<>();
 //        HashSet<Integer> s = new HashSet<>();
-//        MatriX.initBothMat(l,s,capacity,fee,consumerNode,serverCost,3);        // init with k
-//        MatriX.initBothMat(l,s,capacity,fee,consumerNode,serverCost,1.5);   // init with multi
+//        MatriX.initBothMat(s,capacity,fee,consumerNode,serverCost,3);        // init with k
+//        MatriX.initBothMat(s,capacity,fee,consumerNode,serverCost,1.5);   // init with multi
 //
 //        MatriX.updateBothMat(l,s,capacity,fee,consumerNode,serverCost,3);      // update with k
 //        MatriX.updateBothMat(l,s,capacity,fee,consumerNode,serverCost,1.5); // update with multi
