@@ -162,4 +162,21 @@ public class ToolBox {
         }
         return m;
     }
+
+    public static int countPathListFee(List<String> paths,int[][] fee,int serverCost){
+        int cost = 0;
+        HashSet<Integer> server = new HashSet<>();
+        for(String p:paths){
+            String[] v =  p.trim().split(" ");
+            server.add(Integer.parseInt(v[1]));
+            int flow = Integer.parseInt(v[v.length-1]);
+            for(int i = 1;i<v.length-3;i++){
+                int start = Integer.parseInt(v[i]);
+                int end = Integer.parseInt(v[i+1]);
+                cost += fee[start][end] * flow;
+            }
+        }
+        cost += server.size()*serverCost;
+        return cost;
+    }
 }
