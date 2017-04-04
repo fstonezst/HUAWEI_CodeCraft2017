@@ -168,8 +168,10 @@ public class Graph {
             //设置流量图，如果正向流量大于逆向流量则将正向流量设为正向流量减去逆流
             //否则将逆流减去正流
             int backFlow = flowGraph.getTheEdgeFlow(to, from);
+            int oldFlow ;
             if (flow > backFlow) {
-                flowGraph.setEdgeFlow(from, to, flow - backFlow);
+                oldFlow = flowGraph.getTheEdgeFlow(from,to);
+                flowGraph.setEdgeFlow(from, to, flow + oldFlow- backFlow);
                 flowGraph.setEdgeFlow(to, from, 0);
             } else {
                 flowGraph.setEdgeFlow(to, from, backFlow - flow);
