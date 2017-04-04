@@ -1,6 +1,8 @@
 package com.cacheserverdeploy.graphoperat;
 
 import java.util.*;
+import java.util.logging.Logger;
+
 import com.cacheserverdeploy.deploy.ToolBox;
 import com.cacheserverdeploy.matrix.MatriX;
 
@@ -160,26 +162,26 @@ public class Graph {
         int from = it.next();
         while (it.hasNext()) {
             int to = it.next();
-            //1.设置正向流量
-            //将该路径的容量直接减去流量
-            //subject to  flow <= cap[from][to]
-            residualCap[from][to] -= flow;
 
-            //设置流量图，如果正向流量大于逆向流量则将正向流量设为正向流量减去逆流
+            //1.设置流量图，如果正向流量大于逆向流量则将正向流量设为正向流量减去逆流
             //否则将逆流减去正流
             int backFlow = flowGraph.getTheEdgeFlow(to, from);
             int oldFlow ;
             if (flow > backFlow) {
                 oldFlow = flowGraph.getTheEdgeFlow(from,to);
-                flowGraph.setEdgeFlow(from, to, flow + oldFlow- backFlow);
+                flowGraph.setEdgeFlow(from, to, flow + oldFlow - backFlow);
                 flowGraph.setEdgeFlow(to, from, 0);
             } else {
                 flowGraph.setEdgeFlow(to, from, backFlow - flow);
             }
 
+            //2.设置残余网络
+            //将该路径的容量直接减去流量
+            //subject to  flow <= cap[from][to]
+            residualCap[from][to] -= flow;
+
             //如果该路径费用为负，则流量经过的路径为回流，
             //如果回流的剩余容量等于0则将该回流去掉，重设为初始路径
-
             if (residualFee[from][to] < 0 && residualCap[from][to] == 0) {
                 residualCap[from][to] = cap[from][to];
                 residualFee[from][to] *= -1;
@@ -195,8 +197,6 @@ public class Graph {
                 }
             }
             from = to;
-
-
         }
 
     }
@@ -249,15 +249,17 @@ public class Graph {
      * @param flowGraph 流量图，用于返回
      * @return 是否可以得到满足流量大小为flow的路径
      */
-    private static int minFeeFlow(int start, int end, int flow, int[][] cap, int[][] residualCap, int[][] residualFee,FlowGraph flowGraph) {
+    private static HashMap<Integer,Integer> minFeeFlow(int start, int end, int flow, int[][] cap, int[][] residualCap, int[][] residualFee,FlowGraph flowGraph) {
 //        int vNum = cap.length;
 //        int[][] residualFee = new int[vNum][vNum]; //残余费用图
 //        int[][] residualCap = new int[vNum][vNum]; //残余容量图
 //        ToolBox.copyTwoDArr(fee, residualFee);
 //        ToolBox.copyTwoDArr(cap, residualCap);
+
         int pathFlow;  //增广路径流量
         int flowSum = 0; //已获取的流量和
 
+        List<List<Integer>> list = new  ArrayList<>();
         while (flowSum < flow) {
             int[] post = SPFA(start, residualFee, residualCap);
             List<Integer> path = getPath(start, end, post);
@@ -267,10 +269,40 @@ public class Graph {
             if (pathFlow == 0)
                 break;
             pathFlow = pathFlow > flow ? flow : pathFlow;
+
             reSetGraph(path, pathFlow, cap, residualCap, residualFee, flowGraph);
             flowSum += pathFlow;
+
+            path.add(pathFlow);
+            list.add(path);
+
+//            for(int i : path){
+//                System.out.print(i+" ");
+//            }
+//            System.out.println();
         }
-        return flowSum;
+//
+//        System.out.println();
+
+        HashMap<Integer,Integer> serverFlow = new HashMap<>();
+        for(List<Integer> l:list) {
+            int serverId = l.get(1);
+            int pathF = l.get(l.size()-1);
+            Integer sFlow = serverFlow.get(serverId);
+            if(sFlow == null)
+                serverFlow.put(serverId,pathF);
+            else
+                serverFlow.put(serverId,serverFlow.get(serverId)+pathF);
+        }
+
+//        for(int i : serverFlow.keySet())
+//            System.out.println(i+":"+serverFlow.get(i));
+//        System.out.println("----------------------");
+
+        serverFlow.put(cap.length,flowSum);
+
+//        return flowSum;
+        return serverFlow;
     }
 
     /**
@@ -283,29 +315,41 @@ public class Graph {
      * @param flowGraph 流量图
      * @return 比赛要求的流量流格式 [start p1 ... pn end fee] OR null
      */
-    private static String getAFlowPath(int start, int end, FlowGraph flowGraph) {
+    private static String getAFlowPath(int start, int end, FlowGraph flowGraph,int[][] consumer) {
 
         StringBuffer sb = new StringBuffer(); //保存路径的顶点
         List<FlowGraph.Edge> path = new LinkedList<>(); //保存路径的边
         FlowGraph.Edge first = flowGraph.getANonZeroEdge(start); //获取第一条边
+
         if (first == null)
             return null;
         path.add(first);
 
         int p = first.getEnd();
-        sb.append(start + " " + p + " ");
+//        sb.append(p + " ");
 
         FlowGraph.Edge edge;
         int minFlow = first.getFlow();
-        while (p != end) {
-            edge = flowGraph.getANonZeroEdge(p);
-            if (edge == null)
-                return null;
-            path.add(edge);
-            if(edge.getFlow() < minFlow)
-                minFlow = edge.getFlow();
-            p = edge.getEnd();
+        while (true) {
             sb.append(p + " ");
+            edge = flowGraph.getANonZeroEdge(p);
+            if (edge == null) {
+                return null;
+            }
+            path.add(edge);
+            if(edge.getFlow() < minFlow) {
+                minFlow = edge.getFlow();
+            }
+            if(edge.getEnd() == end)
+                break;
+            p = edge.getEnd();
+        }
+
+        for(int i= 0;i<consumer.length;i++){
+            if(consumer[i][0] == p) {
+                sb.append(i+" ");
+                break;
+            }
         }
 
         for(FlowGraph.Edge e:path){
@@ -328,18 +372,19 @@ public class Graph {
      * @return 流量流列表
      */
     public static List<String> getAllFlowPath(int start, int end,int flow, int[][] cap, int[][] fee,int[][] consumerNode,int serverCost ) {
-        FlowGraph flowGraph = new FlowGraph(); //流量图
         int vNum = cap.length;
         int flowSum = 0;
         HashSet<Integer> set = new HashSet<>();
         List<int[][]> list = new LinkedList<>();
 
+
         int[][] residualFee = new int[vNum+2][vNum+2]; //残余费用图
         int[][] residualCap = new int[vNum+2][vNum+2]; //残余容量图
 
+
         // cap = 扩增为N+2维
         // fee = 扩增为N+2维
-        set.addAll(MatriX.initBothMat(list,set,cap,fee,consumerNode,serverCost,3));
+        set.addAll(MatriX.initBothMat(list,set,cap,fee,consumerNode,0,1));
         int[][] capacity = list.get(0);
         int[][] f = list.get(1);
 
@@ -348,11 +393,9 @@ public class Graph {
 //        new int[vNum+2][vNum+2];
 //        int[][] f = new int[vNum+2][vNum+2];
 
-
 //        set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,serverCost,3));      // update with k
 
 //        ToolBox.printMatri(capacity);
-
 
         /*for(int i :capacity[vNum])
             System.out.print(i+" ");
@@ -360,26 +403,50 @@ public class Graph {
         for(int i :capacity[vNum+1])
             System.out.print(i+" ");
 */
-        ToolBox.copyTwoDArr(capacity,residualCap);
-        ToolBox.copyTwoDArr(f,residualFee);
 
+        int bestCost = 0;
+        HashMap<Integer,Integer> badCase = new HashMap<>();
+        HashMap<Integer,Integer> map;// = new HashMap<>();
+
+        FlowGraph flowGraph;
         do {
-            flowSum += minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
+            flowGraph = new FlowGraph(); //流量图
+            ToolBox.copyTwoDArr(capacity,residualCap);
+            ToolBox.copyTwoDArr(f,residualFee);
+//            for(int i = 0;i < capacity.length;i++){
+//                System.out.println(capacity[16][capacity.length-1]);
+//            }
+            map = minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
+
+            flowSum = map.get(cap.length);
             // 增加一个连接服务器，修改cap与fee
 
-            set.addAll(MatriX.updateBothMat(list,set,capacity,fee,consumerNode,serverCost,3));      // update with k
+            set.addAll(MatriX.updateBothMat(list,set,capacity,f,consumerNode,0,1));      // update with k
+
             if(set.size() >= vNum)
                 break;
 
         }while(flowSum < flow);
 
-        List<String> res = new LinkedList<>();
-        String s = getAFlowPath(start, end, flowGraph);
+//        if(map.size() < )
+//        badCase = map;
 
-        while (s != null) {
+        List<String> res = new LinkedList<>();
+//        flowGraph.printFG();
+        Logger.getGlobal().info("16 outCap:"+flowGraph.getSumOutCap(16));
+//        String s = getAFlowPath(start, end, flowGraph);
+
+        String s;
+        while(true){
+//            System.out.println(s);
+            s = getAFlowPath(start, end, flowGraph,consumerNode);
+            if (s ==null)
+                break;
             res.add(s);
-            s = getAFlowPath(start, end, flowGraph);
         }
+
+        System.out.println("fee:" + ToolBox.countPathListFee(res,f,serverCost));
         return res;
+
     }
 }

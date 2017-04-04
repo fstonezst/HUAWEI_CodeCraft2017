@@ -141,6 +141,15 @@ public class MatriX {
         map = ToolBox.sumNodeCap_TreeMap(capacity,s);
         topKmap = ToolBox.topKTreeMap(map,k);
         re = MatriX.treeMapToSet(topKmap);
+
+        int sum ;
+        for(int i:re){
+            sum = 0;
+            for(int j = 0;j<capacity[i].length;j++)
+                sum+=capacity[i][j];
+            topKmap.put(new Pair(sum,i),i);
+        }
+
         l.add(MatriX.fullCapMat(capacity,consumerNode,topKmap));
         l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
         return re;
