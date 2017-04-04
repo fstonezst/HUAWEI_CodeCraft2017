@@ -54,7 +54,7 @@ public class Deploy {
 //        for (int[] s : consumerNode)
 //            System.out.println(s[0]+" " + s[1]);
 
-        zstTest(capacity, fee,consumerNode,serverCost);
+//        zstTest(capacity, fee,consumerNode,serverCost);
 //        List<int[][]> l = new LinkedList<>();
 //        HashSet<Integer> s = new HashSet<>();
 //        MatriX.initBothMat(s,capacity,fee,consumerNode,serverCost,3);        // init with k
@@ -63,8 +63,29 @@ public class Deploy {
 //        MatriX.updateBothMat(l,s,capacity,fee,consumerNode,serverCost,3);      // update with k
 //        MatriX.updateBothMat(l,s,capacity,fee,consumerNode,serverCost,1.5); // update with multi
 
+        int start = capacity.length, end = capacity.length+1, flow = 0;
+        for(int[] c:consumerNode)
+            flow += c[1];
+
+
+
+        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
+
+        for (String s : list)
+            System.out.println(s);
+
+        String[] result = new String[list.size()+2];
+        result[0] = Integer.toString(list.size());
+        result[1] = "\r\n";
+        Iterator<String> it = list.iterator();
+        for(int i=2;i<result.length;i++){
+            result[i] = it.next();
+        }
+
+
         /**do your work here**/
-        return new String[]{"17", "\r\n", "0 8 0 20"};
+//        return new String[]{list.size()+"\r\n", "0 8 0 20"};
+        return result;
     }
 
 
@@ -80,7 +101,6 @@ public class Deploy {
         List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
         for (String s : list)
             System.out.println(s);
-
 
     }
 
