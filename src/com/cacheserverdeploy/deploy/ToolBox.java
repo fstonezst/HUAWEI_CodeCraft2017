@@ -106,7 +106,7 @@ public class ToolBox {
         Integer val, s1=0,s2=0,TH;
 
         for(int i =0;i<consumerNode.length;i++)
-            s1+=consumerNode[i][2];
+            s1+=consumerNode[i][1];
         TH = (int)(s1*multi);
 
         Iterator it = map.entrySet().iterator();
@@ -149,12 +149,30 @@ public class ToolBox {
 
     public static TreeMap sumNodeCap_TreeMap(int[][] c, HashSet<Integer> s) {
         int sum = 0;
+        int N = c.length;
         TreeMap m = new TreeMap<Double, Integer>(new desPairCmp());
-        Pair p;
-        for (int i = 0; i < c.length; i++) {
+        for (int i = 0; i < N-2; i++) {
             if(s.contains(i))
                 continue;
-            for (int j = 0; j < c[0].length; j++) {
+            for (int j = 0; j < N; j++) {
+                if(j==(N-2))
+                    continue;
+                sum += c[i][j];    // sum of out-flow from node[i]
+            }
+            m.put(new Pair(sum, i), i);
+            sum = 0;
+        }
+        return m;
+    }
+    public static TreeMap sumNodeCap_TreeMap(int[][] c) {
+        int sum = 0;
+        int N = c.length;
+        TreeMap m = new TreeMap<Double, Integer>(new desPairCmp());
+        Pair p;
+        for (int i = 0; i < N-2; i++) {
+            for (int j = 0; j < N; j++) {
+                if (j==(N-2))
+                    continue;
                 sum += c[i][j];    // sum of out-flow from node[i]
             }
             m.put(new Pair(sum, i), i);
