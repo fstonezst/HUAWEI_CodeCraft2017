@@ -115,7 +115,7 @@ public class MatriX {
     public static HashSet<Integer> initBothMat(List<int[][]> l, HashSet<Integer> s, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
         HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s,s);
         topKmap = ToolBox.topKTreeMap(map,k);
         re = MatriX.treeMapToSet(topKmap);
         l.add(MatriX.initCapMat(capacity,consumerNode,topKmap));
@@ -126,7 +126,7 @@ public class MatriX {
     public static HashSet<Integer> initBothMat(List<int[][]> l,HashSet<Integer> s, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
         HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s,s);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
         re = MatriX.treeMapToSet(topKmap);
         l.add(MatriX.initCapMat(capacity,consumerNode,topKmap));
@@ -135,12 +135,12 @@ public class MatriX {
     }
 
 
-    public static HashSet<Integer> updateBothMat(List<int[][]> l, HashSet<Integer> s, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
+    public static HashSet<Integer> updateBothMat(HashSet<Integer> badCase, HashSet<Integer> s, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
+
         HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s,badCase);
         topKmap = ToolBox.topKTreeMap(map,k);
-        re = MatriX.treeMapToSet(topKmap);
 
         int sum ;
         for(int i:s){
@@ -149,16 +149,18 @@ public class MatriX {
                 sum+=capacity[i][j];
             topKmap.put(new Pair(sum,i),i);
         }
+        re = MatriX.treeMapToSet(topKmap);
 
-        l.add(MatriX.fullCapMat(capacity,consumerNode,topKmap));
-        l.add(MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost));
+        MatriX.fullCapMat(capacity,consumerNode,topKmap);
+        MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
+
         return re;
     }
 
     public static HashSet<Integer> updateBothMat(List<int[][]> l, HashSet<Integer> s, int[][] capacity,int[][] fee, int[][] consumerNode,int server_cost,double multi){
         HashSet<Integer> re;
         TreeMap map,topKmap;
-        map = ToolBox.sumNodeCap_TreeMap(capacity,s);
+        map = ToolBox.sumNodeCap_TreeMap(capacity,s,s);
         topKmap = ToolBox.topKTreeMap(map, consumerNode,multi);
         re = MatriX.treeMapToSet(topKmap);
         l.add(MatriX.fullCapMat(capacity,consumerNode,topKmap));
