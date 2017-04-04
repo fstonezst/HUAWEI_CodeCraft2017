@@ -23,7 +23,7 @@ public class MatriX {
         for (int i = 0; i < consumerNode.length; i++) {
             if (consumerNode[i][1] != 0) {
                 neighbour = consumerNode[i][0];  // [array_index]:client>>[0:neighbour,1:need_cost]
-                capacity[neighbour][N-1] = capacity[N -1][neighbour] = consumerNode[i][1]; //
+                capacity[neighbour][N] = capacity[N][neighbour] += consumerNode[i][1]; //
             }
         }
         /*
@@ -45,7 +45,7 @@ public class MatriX {
             Map.Entry entry = (Map.Entry)it.next();
             key = (Pair)entry.getKey();
             val = (Integer)entry.getValue();
-            capacity[val][N]= capacity[N][val]=key.first;
+            capacity[val][N]= capacity[N][val]+=key.first;
         }
 
     }
@@ -84,9 +84,7 @@ public class MatriX {
      * @return
      */
     public static int[][] fullFeeMat(int[][] fee, int[][] consumerNode, TreeMap topKmap, int server_cost) {
-        int N = fee.length;
-        int[][] mat = new int[N + 2][N + 2];
-        ToolBox.copyTwoDArr(fee, mat);
+        int N = fee.length-2;
 
         /*init Top-K server's fee: #N */
         Pair key;
@@ -96,9 +94,7 @@ public class MatriX {
             Map.Entry entry = (Map.Entry) it.next();
             key = (Pair) entry.getKey();
             val = (Integer) entry.getValue();
-            for (int i = 0; i < N; i++)
-                if (i == val)
-                    mat[val][N] = mat[N][val] = server_cost;
+            fee[val][N] = fee[N][val] = server_cost;
         }
 
         /*init super END node's fee: #N */
@@ -106,10 +102,10 @@ public class MatriX {
         for (int i = 0; i < consumerNode.length; i++) {
             if (consumerNode[i][1] != 0) {
                 neighbour = consumerNode[i][0];  // [array_index]:client>>[0:neighbour,1:need_cost]
-                mat[neighbour][N + 1] = mat[N + 1][neighbour] = 0; // INT_MAX -> 0
+                fee[neighbour][N + 1] = fee[N + 1][neighbour] = 0; // INT_MAX -> 0
             }
         }
-        return mat;
+        return fee;
     }
 
     public static HashSet<Integer> initBothMat(HashSet<Integer> s, int[][] capacity, int[][] fee, int[][] consumerNode, int server_cost, int k){
