@@ -2,6 +2,7 @@ package com.cacheserverdeploy.graphoperat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by peter on 2017/4/2.
@@ -105,5 +106,28 @@ public class FlowGraph {
             e = e.next;
         }
         return e;
+    }
+
+    public void printFG(){
+        Logger.getGlobal().info("FlowGraphPrint");
+        for(int i: vertices.keySet()) {
+            System.out.print(i + ":");
+            Edge e = vertices.get(i);
+            while(e != null) {
+                System.out.print(e.end + "->");
+                e = e.next;
+            }
+            System.out.println();
+        }
+    }
+
+    public int getSumOutCap(int start){
+        int sum = 0;
+        Edge e= vertices.get(start);
+        while (e!=null){
+            sum+=e.flow;
+            e=e.next;
+        }
+        return sum;
     }
 }
