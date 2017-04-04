@@ -143,7 +143,7 @@ public class MatriX {
         re = MatriX.treeMapToSet(topKmap);
 
         int sum ;
-        for(int i:re){
+        for(int i:s){
             sum = 0;
             for(int j = 0;j<capacity[i].length;j++)
                 sum+=capacity[i][j];
