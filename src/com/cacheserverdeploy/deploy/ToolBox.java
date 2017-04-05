@@ -98,7 +98,21 @@ public class ToolBox {
         }
         return re;
     }
-
+    public static TreeMap topKTreeMap(TreeMap map, int k,float rate) {
+        TreeMap re = new TreeMap<Double, Integer>(new desPairCmp());
+        Pair key;
+        Integer val;
+        Iterator it = map.entrySet().iterator();
+        int choiceRage = (int)(rate * map.size());
+        Random r= new Random();
+        while (choiceRage-- > 0 && it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            key = (Pair) entry.getKey();
+            val = (Integer) entry.getValue();
+            re.put(key, val);
+        }
+        return re;
+    }
 
     public static TreeMap topKTreeMap(TreeMap map, int[][] consumerNode, double multi) {
         TreeMap re = new TreeMap<Double, Integer>(new desPairCmp());
@@ -164,6 +178,72 @@ public class ToolBox {
             sum = 0;
         }
         return m;
+    }
+
+    public static int[] getOutCap(int[][]c ){
+        int[] outCap = new int[c.length];
+        for(int i = 0; i< c.length-2;++i){
+            for(int j = 0;j<c.length-2;j++){
+                outCap[i] += c[i][j];
+            }
+        }
+        outCap[c.length-2] = 0;
+        outCap[c.length-1] = 0;
+        for(int i = 0;i<c.length-2;i++){
+            outCap[i]+= c[i][c.length-1];
+        }
+        return outCap;
+    }
+
+    public static HashSet<Integer> randomGetKServer(int[][] c,int k){
+        int[] OutCap = getOutCap(c);
+        HashSet<Integer> res = new HashSet<>();
+        int length = 1000;
+        int[] serverIdDis = new int[length];
+        for(int i = 0;i<serverIdDis.length;i++){
+            serverIdDis[i] = -1;
+        }
+        int totalCap = 0;
+        for(int i=0; i<OutCap.length;i++)
+            totalCap+= OutCap[i];
+        int p =0;
+        for(int id = 0;id < OutCap.length; id++){
+            double rate = OutCap[id]/(double)totalCap;
+            int l = (int)(length*rate);
+            for(int j = p;j<p+l;j++){
+                serverIdDis[j] = id;
+            }
+            p += l;
+        }
+
+        Random r = new Random();
+        for(int i = 0; i<k;i++){
+            int id = r.nextInt(length);
+            while(serverIdDis[id] == -1 )
+                id = r.nextInt(length);
+            res.add(serverIdDis[id]);
+        }
+        return res;
+    }
+
+    public static void setServerCost(int[][] fee,HashSet<Integer> servers,int serverCost){
+        for(int i:servers)
+            fee[fee.length-2][i] = serverCost;
+    }
+
+    public static void setServerCap(int[][] cap, HashSet<Integer> servers, int[] outCap){
+        for(int i:servers)
+            cap[cap.length-2][i] = outCap[i];
+    }
+
+    public static void connectServers(int[][] cap,int[][] fee,HashSet<Integer> servers,int serverCost,int[] outCap){
+        setServerCost(fee,servers,serverCost);
+        setServerCap(cap,servers,outCap);
+    }
+
+    public static void connectConsumers(int[][] cap,int[][] consumers){
+        for(int[] con:consumers)
+            cap[con[0]][cap.length-1] = con[1];
     }
 
     public static int countPathListFee(List<String> paths,int[][] fee,int serverCost){

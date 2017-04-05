@@ -72,8 +72,8 @@ public class Deploy {
 //        serverCost = 300;
         List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
 
-        for (String s : list)
-            System.out.println(s);
+//        for (String s : list)
+//            System.out.println(s);
 
         String[] result = new String[list.size()+2];
         result[0] = Integer.toString(list.size());
