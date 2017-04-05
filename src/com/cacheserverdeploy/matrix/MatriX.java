@@ -149,11 +149,15 @@ public class MatriX {
                 sum+=capacity[i][j];
             topKmap.put(new Pair(sum,i),i);
         }
+
         re = MatriX.treeMapToSet(topKmap);
 
         MatriX.fullCapMat(capacity,consumerNode,topKmap);
         MatriX.fullFeeMat(fee,consumerNode,topKmap,server_cost);
 
+        for( int serverId : s){
+            fee[fee.length-2][serverId] = 0;
+        }
 
         return re;
     }

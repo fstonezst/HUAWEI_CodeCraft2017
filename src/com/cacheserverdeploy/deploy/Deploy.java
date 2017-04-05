@@ -1,7 +1,7 @@
 package com.cacheserverdeploy.deploy;
 
 import com.cacheserverdeploy.graphoperat.Graph;
-import com.cacheserverdeploy.matrix.MatriX;
+//import com.cacheserverdeploy.matrix.MatriX;
 
 import java.util.*;
 
@@ -69,6 +69,7 @@ public class Deploy {
 
 
 
+//        serverCost = 300;
         List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
 
         for (String s : list)
