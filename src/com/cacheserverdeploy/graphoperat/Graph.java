@@ -26,42 +26,42 @@ public class Graph {
         int[] post = new int[vNum];
         int[] minCap = new int[vNum];
         int qDstSum = 0; //队列中元素到起点的距离加和
-        int[] res = new int[vNum];
+        int[] distance = new int[vNum];
         int[] times = new int[vNum];
         boolean[] isIn = new boolean[vNum];
         for (int i = 0; i < vNum; ++i) {
             times[i] = 0;
             isIn[i] = false;
-            res[i] = Integer.MAX_VALUE;
+            distance[i] = Integer.MAX_VALUE;
             post[i] = -1;
             minCap[i] = Integer.MAX_VALUE;
         }
 
         queue.add(start);
         times[start] = 1;
-        res[start] = 0;
+        distance[start] = 0;
         isIn[start] = true;
         while (queue.size() != 0) {
             //LLL优化
             int avg = qDstSum / queue.size();
-            while (res[queue.peekFirst()] > avg)
+            while (distance[queue.peekFirst()] > avg)
                 queue.addLast(queue.removeFirst());
 
             int a = queue.removeFirst();
-            qDstSum -= res[a];
+            qDstSum -= distance[a];
             for (int i = 0; i < vNum; i++) {
 //                if (f[a][i] == 0 || c[a][i] <= 0)
                 if (c[a][i] <= 0)
                     continue;
-                int dst = res[a] + f[a][i];
+                int dst = distance[a] + f[a][i];
                 int cap = minCap[a] < c[a][i] ? minCap[a] : c[a][i];
 
                 //如果距离更近或者距离相等但是容量更大则更新路径，
-                if (res[i] > dst){// || (res[i] == dst && cap>minCap[i])) {
+                if (distance[i] > dst){// || (res[i] == dst && cap>minCap[i])) {
                     post[i] = a;
                     if(minCap[i] > c[a][i])
                         minCap[i] = c[a][i];
-                    res[i] = dst;
+                    distance[i] = dst;
                     if (!isIn[i]) {
 
 //                        if(res[queue.peekFirst()] >= res[i])
@@ -69,7 +69,7 @@ public class Graph {
 //                        else
                         queue.addLast(i);
 
-                        qDstSum += res[i];
+                        qDstSum += distance[i];
 
                         times[i]++;
                         if (times[i] > vNum)
