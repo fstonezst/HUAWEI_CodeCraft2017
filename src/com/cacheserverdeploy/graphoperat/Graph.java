@@ -382,10 +382,13 @@ public class Graph {
      * @return 流量流列表
      */
     public static List<String> getAllFlowPath(int start, int end, int flow, int[][] cap, int[][] fee, int[][] consumerNode, int serverCost) {
-        int timeOut = 90 * 1000;
         long startTime = System.currentTimeMillis();
 //        int initServerNumRate = 5;
         int vNum = cap.length;
+//        int timeOut = 85 * (vNum-2);
+        int timeOut = 85000;
+
+//        Logger.getGlobal().info("vNum:" + (vNum - 2));
 
         List<String> res;
         List<String> bestRes = null;
@@ -406,62 +409,69 @@ public class Graph {
         while ((System.currentTimeMillis() - startTime) < timeOut) {
 
             HashSet<Integer> serversSelected = ToolBox.randomGetKServer(cap, k);
-
             ToolBox.connectServers(cap, fee, serversSelected, serverCost, outCap);
 //            ToolBox.connectServers(cap, fee, serversSelected,0, outCap);
 
             HashSet<Integer> lastUseServer = new HashSet<>();
-
             while (true) {
                 flowGraph = new FlowGraph(); //流量图
                 ToolBox.copyTwoDArr(cap, residualCap);
                 ToolBox.copyTwoDArr(fee, residualFee);
-
                 serversOutFlow = minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
 //                Logger.getGlobal().info("flow:" + serversOutFlow.get(cap.length));
 
                 HashSet<Integer> curUseServer = new HashSet<>();
+                for (int serverId : serversOutFlow.keySet())
+                    if (serverId != cap.length)
+                        curUseServer.add(serverId);
 
-//                Logger.getGlobal().info("usedServer:");
-//                for (int i : serversOutFlow.keySet()) {
-//                    if (i != cap.length) {
-//                        curUseServer.add(i);
-//                        System.out.print(i + " ");
-//                    }
-//                }
-
-                if (serversOutFlow.get(cap.length) < flow) {
-                    continue serverChoice;
-                } else {
+                if (false) {
+                    //worse
                     if (curUseServer.size() > lastUseServer.size()) {
                         ToolBox.setServerCost(fee, serversSelected, serverCost);
-//                    ToolBox.setServerCost(fee, serversSelected, 0);
                         ToolBox.setServerCost(fee, curUseServer, 0);
                         lastUseServer = curUseServer;
                         continue;
+                    } else if (serversOutFlow.get(cap.length) < flow) {
+                        continue serverChoice;
                     } else {
                         break;
+                    }
+
+                } else {
+                    //better
+                    if (serversOutFlow.get(cap.length) < flow) {
+                        continue serverChoice;
+                    } else {
+                        if (curUseServer.size() > lastUseServer.size()) {
+                            ToolBox.setServerCost(fee, serversSelected, serverCost);
+                            ToolBox.setServerCost(fee, serversSelected, 0);
+                            lastUseServer = curUseServer;
+                            continue;
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
 
             res = new LinkedList<>();
-
             String s = getAFlowPath(start, end, flowGraph, consumerNode);
             while (s != null) {
                 res.add(s);
                 s = getAFlowPath(start, end, flowGraph, consumerNode);
             }
-
             int cost = ToolBox.countPathListFee(res, fee, serverCost);
             if (cost < bestCost) {
                 bestRes = res;
                 bestCost = cost;
+//                System.out.println("fee:" + bestCost);
+//                System.out.println("timeMark:" + (System.currentTimeMillis() - startTime));
 //                bestSet.clear();
 //                bestSet.addAll(set);
             }
         }
-        System.out.println("fee:" + bestCost);
+//        Logger.getGlobal().info("final fee:" + bestCost);
         return bestRes;
     }
 }
@@ -471,4 +481,12 @@ public class Graph {
 //                System.out.print(i + " ");
 //            }
 //            System.out.println();
+
+//                Logger.getGlobal().info("usedServer:");
+//                for (int i : serversOutFlow.keySet()) {
+//                    if (i != cap.length) {
+//                        curUseServer.add(i);
+//                        System.out.print(i + " ");
+//                    }
+//                }
 

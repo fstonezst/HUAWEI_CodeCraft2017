@@ -27,8 +27,8 @@ public class Deploy {
         int[][] fee = new int[vNum][vNum];
         int[][] consumerNode = new int[cNum][2];
 
-        for(int i = 0;i<fee.length;i++)
-            for(int j=0;j<fee[i].length;j++)
+        for (int i = 0; i < fee.length; i++)
+            for (int j = 0; j < fee[i].length; j++)
                 fee[i][j] = Integer.MAX_VALUE;
 
         int line = 4;
@@ -52,36 +52,47 @@ public class Deploy {
             consumerNode[consumerId][1] = Integer.parseInt(consumer[2]);
         }
 
-        int start = capacity.length-2, end = capacity.length-1, flow = 0;
-        for(int[] c:consumerNode)
+        int start = capacity.length - 2, end = capacity.length - 1, flow = 0;
+        for (int[] c : consumerNode)
             flow += c[1];
 
 //        serverCost = 300;
-        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
+        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode, serverCost);
 
 //        for (String s : list)
 //            System.out.println(s);
 
-        String[] result = new String[list.size()+2];
-        result[0] = Integer.toString(list.size());
-        result[1] = "\r\n";
-        Iterator<String> it = list.iterator();
-        for(int i=2;i<result.length;i++){
-            result[i] = it.next();
-        }
+        if (list == null) {
+            String[] result = new String[consumerNode.length + 2];
+            result[0] = Integer.toString(consumerNode.length);
+            result[1] = "\r\n";
+            for (int i = 0; i < consumerNode.length; i++) {
+                result[i] = consumerNode[i][0] + " " + i + " " + consumerNode[i][1];
+            }
+            return result;
+        } else {
+            String[] result = new String[list.size() + 2];
+            result[0] = Integer.toString(list.size());
+            result[1] = "\r\n";
+            Iterator<String> it = list.iterator();
+
+            for (int i = 2; i < result.length; i++) {
+                result[i] = it.next();
+            }
 
 
-        /**do your work here**/
+            /**do your work here**/
 //        return new String[]{list.size()+"\r\n", "0 8 0 20"};
-        return result;
+            return result;
+        }
     }
 
 
-    public static void zstTest(int[][] capacity, int[][] fee, int[][] consumerNode,int serverCost) {
-        int start = capacity.length, end = capacity.length+1, flow = 0;
-        for(int[] c:consumerNode)
+    public static void zstTest(int[][] capacity, int[][] fee, int[][] consumerNode, int serverCost) {
+        int start = capacity.length, end = capacity.length + 1, flow = 0;
+        for (int[] c : consumerNode)
             flow += c[1];
-        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode,serverCost);
+        List<String> list = Graph.getAllFlowPath(start, end, flow, capacity, fee, consumerNode, serverCost);
         for (String s : list)
             System.out.println(s);
 
