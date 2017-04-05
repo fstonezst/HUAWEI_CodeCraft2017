@@ -51,7 +51,7 @@ public class Graph {
             qDstSum -= res[a];
             for (int i = 0; i < vNum; i++) {
 //                if (f[a][i] == 0 || c[a][i] <= 0)
-                if (c[a][i] <= 0)
+                if (c[a][i] <= 0 || f[a][i] == Integer.MAX_VALUE)
                     continue;
                 int dst = res[a] + f[a][i];
                 int cap = minCap[a] < c[a][i] ? minCap[a] : c[a][i];
@@ -167,11 +167,12 @@ public class Graph {
             //1.设置流量图，如果正向流量大于逆向流量则将正向流量设为正向流量减去逆流
             //否则将逆流减去正流
             int backFlow = flowGraph.getTheEdgeFlow(to, from);
-            int oldFlow;
+//            int oldFlow;
             if (flow > backFlow) {
-                oldFlow = flowGraph.getTheEdgeFlow(from, to);
+                int oldFlow = flowGraph.getTheEdgeFlow(from, to);
+                int curFlow = flow + oldFlow - backFlow;
 
-                flowGraph.setEdgeFlow(from, to, flow + oldFlow - backFlow);
+                flowGraph.setEdgeFlow(from, to, curFlow);
                 flowGraph.setEdgeFlow(to, from, 0);
             } else {
                 flowGraph.setEdgeFlow(to, from, backFlow - flow);
@@ -381,99 +382,93 @@ public class Graph {
      * @return 流量流列表
      */
     public static List<String> getAllFlowPath(int start, int end, int flow, int[][] cap, int[][] fee, int[][] consumerNode, int serverCost) {
-        int timeOut = 85 * 1000;
+        int timeOut = 90 * 1000;
         long startTime = System.currentTimeMillis();
-
-        int initServerNumRate = 5;
+//        int initServerNumRate = 5;
         int vNum = cap.length;
-        int flowSum;
-        HashSet<Integer> set = new HashSet<>();
-        List<int[][]> list = new LinkedList<>();
 
-        List<String> res = null;
+        List<String> res;
         List<String> bestRes = null;
 
-        int[][] residualFee = new int[vNum + 2][vNum + 2]; //残余费用图
-        int[][] residualCap = new int[vNum + 2][vNum + 2]; //残余容量图
+        int[][] residualFee = new int[vNum][vNum]; //残余费用图
+        int[][] residualCap = new int[vNum][vNum]; //残余容量图
         int bestCost = Integer.MAX_VALUE;
-        HashSet<Integer> bestSet = new HashSet<>();
-        HashSet<Integer> badCase = new HashSet<>();
-        HashMap<Integer, Integer> map;// = new HashMap<>();
+//        HashSet<Integer> bestSet = new HashSet<>();
+        HashMap<Integer, Integer> serversOutFlow;
 
         FlowGraph flowGraph;
         int k = consumerNode.length;
+        ToolBox.connectConsumers(cap, fee, consumerNode);
+        int[] outCap = ToolBox.getOutCap(cap);
 
-
-        set.addAll(MatriX.initBothMat(list, set, cap, fee, consumerNode, serverCost, k / initServerNumRate));
-
-        // cap = 扩增为N+2维
-        // fee = 扩增为N+2维
-
-        int[][] capacity = list.get(0);
-        int[][] f = list.get(1);
-
+        boolean flag = true;
+        serverChoice:
         while ((System.currentTimeMillis() - startTime) < timeOut) {
 
-            while(true) {
-                flowGraph = new FlowGraph(); //流量图
-                ToolBox.copyTwoDArr(capacity, residualCap);
-                ToolBox.copyTwoDArr(f, residualFee);
+            HashSet<Integer> serversSelected = ToolBox.randomGetKServer(cap, k);
 
-//            Logger.getGlobal().info("use_server:");
-//            for (int i : set) {
+            ToolBox.connectServers(cap, fee, serversSelected, serverCost, outCap);
+//            ToolBox.connectServers(cap, fee, serversSelected,0, outCap);
+
+            HashSet<Integer> lastUseServer = new HashSet<>();
+
+            while (true) {
+                flowGraph = new FlowGraph(); //流量图
+                ToolBox.copyTwoDArr(cap, residualCap);
+                ToolBox.copyTwoDArr(fee, residualFee);
+
+                serversOutFlow = minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
+//                Logger.getGlobal().info("flow:" + serversOutFlow.get(cap.length));
+
+                HashSet<Integer> curUseServer = new HashSet<>();
+
+//                Logger.getGlobal().info("usedServer:");
+//                for (int i : serversOutFlow.keySet()) {
+//                    if (i != cap.length) {
+//                        curUseServer.add(i);
+//                        System.out.print(i + " ");
+//                    }
+//                }
+
+                if (serversOutFlow.get(cap.length) < flow) {
+                    continue serverChoice;
+                } else {
+                    if (curUseServer.size() > lastUseServer.size()) {
+                        ToolBox.setServerCost(fee, serversSelected, serverCost);
+//                    ToolBox.setServerCost(fee, serversSelected, 0);
+                        ToolBox.setServerCost(fee, curUseServer, 0);
+                        lastUseServer = curUseServer;
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            res = new LinkedList<>();
+
+            String s = getAFlowPath(start, end, flowGraph, consumerNode);
+            while (s != null) {
+                res.add(s);
+                s = getAFlowPath(start, end, flowGraph, consumerNode);
+            }
+
+            int cost = ToolBox.countPathListFee(res, fee, serverCost);
+            if (cost < bestCost) {
+                bestRes = res;
+                bestCost = cost;
+//                bestSet.clear();
+//                bestSet.addAll(set);
+            }
+        }
+        System.out.println("fee:" + bestCost);
+        return bestRes;
+    }
+}
+
+// Logger.getGlobal().info("selected_server:");
+//            for (int i : serversSelected) {
 //                System.out.print(i + " ");
 //            }
 //            System.out.println();
 
-                map = minFeeFlow(start, end, flow, cap, residualCap, residualFee, flowGraph);
-
-
-                if (map.size() - 1 > set.size()) {
-                    for (int serverId : map.keySet()) {
-                        set.add(serverId);
-                    }
-                    set.addAll(MatriX.updateBothMat(badCase, set, capacity, f, consumerNode, serverCost, 0));      // update with k
-                    continue;
-                }else{
-                    break;
-                }
-            }
-
-            /*for (int serverId : map.keySet()) {
-                set.add(serverId);
-            }*/
-
-            flowSum = map.get(cap.length);
-
-            if (flowSum < flow) {
-                // 增加一个连接服务器，修改cap与fee
-                set.addAll(MatriX.updateBothMat(badCase, set, capacity, f, consumerNode, serverCost, 1));      // update with k
-                continue;
-            } else {
-                res = new LinkedList<>();
-                String s;
-                while (true) {
-                    s = getAFlowPath(start, end, flowGraph, consumerNode);
-                    if (s == null)
-                        break;
-                    res.add(s);
-                }
-                int cost = ToolBox.countPathListFee(res, f, serverCost);
-                if (cost < bestCost) {
-                    bestCost = cost;
-                    bestRes = res;
-                    bestSet.clear();
-                    bestSet.addAll(set);
-                }
-                //退火寻优
-                set.addAll(MatriX.updateBothMat(badCase, set, capacity, f, consumerNode, serverCost, 1));      // update with k
-                break;
-
-            }
-
-        }
-//        System.out.println("fee:" + ToolBox.countPathListFee(res, f, serverCost));
-        return bestRes;
-
-    }
-}

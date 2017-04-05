@@ -219,7 +219,7 @@ public class ToolBox {
         Random r = new Random();
         for(int i = 0; i<k;i++){
             int id = r.nextInt(length);
-            while(serverIdDis[id] == -1 )
+            while(serverIdDis[id] == -1 || res.contains(serverIdDis[id]))
                 id = r.nextInt(length);
             res.add(serverIdDis[id]);
         }
@@ -227,23 +227,45 @@ public class ToolBox {
     }
 
     public static void setServerCost(int[][] fee,HashSet<Integer> servers,int serverCost){
+        for(int i = 0;i<fee.length;++i)
+            fee[fee.length-2][i] = Integer.MAX_VALUE;
         for(int i:servers)
             fee[fee.length-2][i] = serverCost;
     }
 
     public static void setServerCap(int[][] cap, HashSet<Integer> servers, int[] outCap){
+        for(int i = 0;i<cap.length;++i)
+            cap[cap.length-2][i] = 0;
         for(int i:servers)
             cap[cap.length-2][i] = outCap[i];
     }
 
     public static void connectServers(int[][] cap,int[][] fee,HashSet<Integer> servers,int serverCost,int[] outCap){
-        setServerCost(fee,servers,serverCost);
-        setServerCap(cap,servers,outCap);
+        for(int i = 0;i<fee.length;++i) {
+            fee[fee.length - 2][i] = Integer.MAX_VALUE;
+            fee[i][fee.length - 2] = Integer.MAX_VALUE;
+            cap[cap.length - 2][i] = 0;
+            cap[i][cap.length - 2] = 0;
+        }
+        for(int i:servers) {
+            fee[fee.length - 2][i] = serverCost;
+            cap[cap.length - 2][i] = outCap[i];
+        }
     }
 
-    public static void connectConsumers(int[][] cap,int[][] consumers){
-        for(int[] con:consumers)
-            cap[con[0]][cap.length-1] = con[1];
+    public static void connectConsumers(int[][] cap,int[][] fee,int[][] consumers){
+        for(int i = 0;i<cap.length;++i) {
+            cap[i][cap.length - 1] = 0;
+            cap[cap.length - 1][i] = 0;
+            fee[i][cap.length - 1] = Integer.MAX_VALUE;
+            fee[cap.length - 1][i] = Integer.MAX_VALUE;
+        }
+        for(int[] con:consumers) {
+            cap[con[0]][cap.length - 1] = con[1];
+//            cap[cap.length - 1][con[0]] = con[1];
+            fee[con[0]][cap.length - 1] = 0;
+//            fee[cap.length - 1][con[0]] = 0;
+        }
     }
 
     public static int countPathListFee(List<String> paths,int[][] fee,int serverCost){
